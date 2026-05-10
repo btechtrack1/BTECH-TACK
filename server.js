@@ -5,7 +5,7 @@
  * Author: BECAM AZIZ W.
  * Run   : node server.js  (or: npm start)
  */
-
+const path = require('path');
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -17,6 +17,11 @@ const app = express();
 
 // ─── Middleware ──────────────────────────────────────────────
 app.use(express.json());
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 app.use(cors({
     origin: process.env.ALLOWED_ORIGIN || '*',   // lock to your domain in production
     methods: ['POST'],
