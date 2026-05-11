@@ -1964,7 +1964,7 @@
     async function fetchIncome() {
       if (_demoMode) return _demoData.income;
       const sb = _sb;
-      const { data } = await sb.from('income').select('*').eq('user_id', uid()).order('date', { ascending: false });
+      const { data } = await sb.from('income').select('*').eq('user_id', uid()).order("transaction_date", { ascending: false })
       return data || [];
     }
     async function addIncome(row) {
@@ -1986,7 +1986,7 @@
     async function fetchExpenses() {
       if (_demoMode) return _demoData.expenses;
       const sb = _sb;
-      const { data } = await sb.from('expenses').select('*').eq('user_id', uid()).order('date', { ascending: false });
+      const { data } = await sb.from('expenses').select('*').eq('user_id', uid()).order("transaction_date", { ascending: false })
       return data || [];
     }
     async function addExpense(row) {
