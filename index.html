@@ -1431,6 +1431,7 @@
       <button class="nav-btn" onclick="showPage('goals',this)">Goals</button>
       <button class="nav-btn" onclick="showPage('budget',this)">Budget</button>
       <button class="nav-btn" onclick="showPage('shopping',this)">Shopping</button>
+      <button class="nav-btn" onclick="showPage('savings',this)">💰 Savings</button>
       <button class="nav-btn" onclick="showPage('reports',this)">Reports</button>
       <button class="nav-btn" onclick="showPage('advice',this)">Advice</button>
       <button class="nav-btn" id="admin-nav" style="display:none" onclick="showPage('admin',this)">⚙ Admin</button>
@@ -1472,11 +1473,21 @@
               <div class="stat-card-sub" id="d-balance-s">0% savings rate</div>
             </div>
           </div>
+          <div class="stat-card" style="--stripe-clr:#8B5CF6">
+            <div class="stat-card-stripe" style="background:#8B5CF6"></div>
+            <div style="padding-left:8px">
+              <div class="stat-card-icon">🏦</div>
+              <div class="stat-card-label">Total Savings</div>
+              <div class="stat-card-value" id="d-savings" style="color:#8B5CF6">KES 0</div>
+              <div class="stat-card-sub" id="d-savings-c">0 entries</div>
+            </div>
+          </div>
         </div>
         <div class="actions">
           <button class="btn-action btn-income" onclick="openModal('income')">+ Add Income</button>
           <button class="btn-action btn-expense" onclick="openModal('expense')">− Add Expense</button>
           <button class="btn-action btn-goal" onclick="openModal('goal')">🎯 Goal</button>
+          <button class="btn-action btn-shop" style="background:#8B5CF6" onclick="openModal('savings')">🏦 Savings</button>
           <button class="btn-action btn-dl" onclick="dlPDF('all')">↓ Export PDF</button>
         </div>
         <div class="charts-grid">
@@ -1570,6 +1581,31 @@
         <div id="shop-total"
           style="padding:12px 14px;background:var(--surface);border-radius:0 0 var(--radius-lg) var(--radius-lg);border:1px solid var(--border);border-top:none">
         </div>
+      </div>
+
+
+      <!-- SAVINGS -->
+      <div id="page-savings" style="display:none" class="fade-in">
+        <div class="section-header">
+          <span class="section-title">💰 Savings Tracker</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn-action" style="background:#8B5CF6;color:#fff;padding:7px 13px;font-size:13px" onclick="openModal('savings')">+ Add Savings</button>
+            <button class="btn-action btn-dl" style="padding:7px 13px;font-size:13px" onclick="dlPDF('savings')">↓ PDF</button>
+          </div>
+        </div>
+        <!-- Savings Summary Card -->
+        <div class="cards-grid" style="margin-bottom:18px">
+          <div class="stat-card" style="--stripe-clr:#8B5CF6">
+            <div class="stat-card-stripe" style="background:#8B5CF6"></div>
+            <div style="padding-left:8px">
+              <div class="stat-card-icon">🏦</div>
+              <div class="stat-card-label">Total Saved</div>
+              <div class="stat-card-value" id="sv-total" style="color:#8B5CF6">KES 0</div>
+              <div class="stat-card-sub" id="sv-count">0 entries</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-card" id="savings-list"></div>
       </div>
 
       <!-- REPORTS -->
@@ -1749,12 +1785,69 @@
         <button class="btn-submit gray" id="btn-add-shop" onclick="addShopUI()">Add Item</button>
       </div>
     </div>
+        <!-- Savings -->
+    <div class="modal" id="m-savings" style="display:none">
+      <div class="modal-header"><span class="modal-title">🏦 Add Savings</span><button class="modal-close" onclick="closeModal()">×</button></div>
+      <div class="form-group"><label>Description</label><input type="text" id="sv-desc" placeholder="e.g. Emergency fund deposit"></div>
+      <div class="form-group"><label>Amount (KES)</label><input type="number" id="sv-amt" placeholder="0" min="0"></div>
+      <div class="form-group"><label>Category</label><select id="sv-cat">
+          <option>General</option>
+          <option>Emergency Fund</option>
+          <option>Investment</option>
+          <option>Education</option>
+          <option>Travel</option>
+          <option>Retirement</option>
+          <option>Business</option>
+          <option>Other</option>
+        </select></div>
+      <div class="form-group"><label>Date</label><input type="date" id="sv-date"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-submit" style="background:#8B5CF6" id="btn-add-savings" onclick="addSavingsUI()">Add Savings</button>
+      </div>
+    </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
      SCRIPTS (order matters: supabase → auth → database → admin → app)
 ═══════════════════════════════════════════════════════════ -->
   <script>
+    // ═══════════════════════════════════════════════════════════
+    // SQL SETUP — Run this in your Supabase SQL Editor once:
+    // ─── income table ───
+    // create table if not exists public.income (
+    //   id uuid primary key default uuid_generate_v4(),
+    //   user_id uuid not null references auth.users(id) on delete cascade,
+    //   description text not null, amount numeric(12,2) not null check (amount > 0),
+    //   category text not null default 'Other', transaction_date date not null default current_date,
+    //   created_at timestamptz not null default now()
+    // );
+    // ─── expenses table ───
+    // create table if not exists public.expenses (
+    //   id uuid primary key default uuid_generate_v4(),
+    //   user_id uuid not null references auth.users(id) on delete cascade,
+    //   description text not null, amount numeric(12,2) not null check (amount > 0),
+    //   category text not null default 'Other', transaction_date date not null default current_date,
+    //   created_at timestamptz not null default now()
+    // );
+    // ─── savings table ───
+    // create table if not exists public.savings (
+    //   id uuid primary key default uuid_generate_v4(),
+    //   user_id uuid not null references auth.users(id) on delete cascade,
+    //   description text not null, amount numeric(12,2) not null check (amount > 0),
+    //   category text not null default 'General', transaction_date date not null default current_date,
+    //   created_at timestamptz not null default now()
+    // );
+    // ─── Enable RLS on all tables ───
+    // alter table public.income enable row level security;
+    // alter table public.expenses enable row level security;
+    // alter table public.savings enable row level security;
+    // ─── RLS Policies (repeat for each table) ───
+    // create policy "Users manage own income" on public.income for all using (auth.uid() = user_id);
+    // create policy "Users manage own expenses" on public.expenses for all using (auth.uid() = user_id);
+    // create policy "Users manage own savings" on public.savings for all using (auth.uid() = user_id);
+    // ═══════════════════════════════════════════════════════════
+
     // ═══════════════════════════════════════════════════════════
     // SUPABASE CONFIG — replace these with your actual project values
     // Get them from: https://supabase.com/dashboard → your project → Settings → API
@@ -1769,7 +1862,7 @@
     let currentUser = null;
     let currentProfile = null;
     let _demoMode = false;
-    let _demoData = { income:[], expenses:[], goals:[], budgets:[], shopping:[], nextId:1 };
+    let _demoData = { income:[], expenses:[], goals:[], budgets:[], shopping:[], savings:[], nextId:1 };
 
     function isAdmin() { return _demoMode || currentProfile?.role === 'admin'; }
 
@@ -1863,11 +1956,17 @@
         const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
         setBtn('btn-login', false, 'Sign In');
         if (error) {
-          errEl.textContent = error.message.includes('Invalid') ? 'Wrong email or password.' : error.message;
+          let msg = error.message;
+          if (msg.includes('Invalid login credentials') || msg.includes('Invalid')) msg = 'Wrong email or password. Please try again.';
+          else if (msg.includes('Email not confirmed')) msg = 'Please confirm your email address first.';
+          else if (msg.includes('Too many requests')) msg = 'Too many attempts. Please wait a moment and try again.';
+          else if (msg.includes('network') || msg.includes('fetch')) msg = 'Network error. Please check your connection.';
+          errEl.textContent = msg;
           errEl.style.display = ''; return;
         }
         currentUser = data.user;
         currentProfile = await safeLoadProfile(data.user);
+        showToast('Welcome back! Signed in successfully.', 'success');
         enterApp();
       } catch(e) {
         setBtn('btn-login', false, 'Sign In');
@@ -1891,7 +1990,14 @@
       try {
         // 1. Create account
         const { data: su, error: suErr } = await _sb.auth.signUp({ email, password: pass, options:{ data:{ full_name: name } } });
-        if (suErr) { setBtn('btn-signup',false,'Create Account'); errEl.textContent=suErr.message; errEl.style.display=''; return; }
+        if (suErr) {
+          setBtn('btn-signup',false,'Create Account');
+          let emsg = suErr.message;
+          if (emsg.includes('already registered') || emsg.includes('already exists')) emsg = 'An account with this email already exists. Try signing in.';
+          else if (emsg.includes('weak') || emsg.includes('password')) emsg = 'Password is too weak. Use at least 6 characters.';
+          else if (emsg.includes('invalid') && emsg.includes('email')) emsg = 'Invalid email address. Please check and try again.';
+          errEl.textContent = emsg; errEl.style.display=''; return;
+        }
 
         // 2. Sign in immediately
         const { data: si, error: siErr } = await _sb.auth.signInWithPassword({ email, password: pass });
@@ -1911,6 +2017,7 @@
         try { await _sb.from('profiles').upsert({ id:si.user.id, name, email, role:'user' }); } catch(e){}
 
         // 4. Go to app
+        showToast('Account created! Welcome to BTECH Track.', 'success');
         enterApp();
       } catch(e) {
         setBtn('btn-signup', false, 'Create Account');
@@ -1920,9 +2027,9 @@
 
     async function doLogout() {
       currentUser = null; currentProfile = null;
-      if (_demoMode) { _demoMode = false; showAuth(); switchAuthTab('login'); return; }
+      if (_demoMode) { _demoMode = false; showAuth(); switchAuthTab('login'); showToast('You have been signed out.', 'info'); return; }
       try { await _sb.auth.signOut(); } catch(e) {}
-      showAuth(); switchAuthTab('login');
+      showAuth(); switchAuthTab('login'); showToast('Signed out successfully.', 'success');
     }
 
     async function doForgotPassword() {
@@ -1964,11 +2071,11 @@
     async function fetchIncome() {
       if (_demoMode) return _demoData.income;
       const sb = _sb;
-      const { data } = await sb.from('income').insert({
-  ...row,
-  user_id: uid(),
-  transaction_date: row.transaction_date || new Date().toISOString()
-});
+      try {
+        const { data, error } = await sb.from('income').select('*').eq('user_id', uid()).order('transaction_date', { ascending: false });
+        if (error) { console.warn('fetchIncome error:', error.message); return []; }
+        return data || [];
+      } catch(e) { console.warn('fetchIncome exception:', e); return []; }
     }
     async function addIncome(row) {
       if (_demoMode) { _demoData.income.unshift({ id: demoId(), user_id: 'demo', ...row }); return true; }
@@ -1989,11 +2096,11 @@
     async function fetchExpenses() {
       if (_demoMode) return _demoData.expenses;
       const sb = _sb;
-      const { data } = await sb.from('expenses').insert({
-  ...row,
-  user_id: uid(),
-  transaction_date: row.transaction_date || new Date().toISOString()
-});
+      try {
+        const { data, error } = await sb.from('expenses').select('*').eq('user_id', uid()).order('transaction_date', { ascending: false });
+        if (error) { console.warn('fetchExpenses error:', error.message); return []; }
+        return data || [];
+      } catch(e) { console.warn('fetchExpenses exception:', e); return []; }
     }
     async function addExpense(row) {
       if (_demoMode) { _demoData.expenses.unshift({ id: demoId(), user_id: 'demo', ...row }); return true; }
@@ -2082,6 +2189,36 @@
       return true;
     }
 
+
+    // ── Savings ──────────────────────────────────────────────────
+    async function fetchSavings() {
+      if (_demoMode) return _demoData.savings || [];
+      const sb = _sb;
+      try {
+        const { data, error } = await sb.from('savings').select('*').eq('user_id', uid()).order('transaction_date', { ascending: false });
+        if (error) { console.warn('fetchSavings error:', error.message); return []; }
+        return data || [];
+      } catch(e) { console.warn('fetchSavings exception:', e); return []; }
+    }
+    async function addSavings(row) {
+      if (_demoMode) { if (!_demoData.savings) _demoData.savings = []; _demoData.savings.unshift({ id: demoId(), user_id: 'demo', ...row }); return true; }
+      const sb = _sb;
+      try {
+        const { error } = await sb.from('savings').insert({ ...row, user_id: uid() });
+        if (error) { showToast('Savings error: ' + error.message, 'danger'); return false; }
+        return true;
+      } catch(e) { showToast('Savings error: ' + e.message, 'danger'); return false; }
+    }
+    async function deleteSavings(id) {
+      if (_demoMode) { _demoData.savings = (_demoData.savings || []).filter(r => r.id !== id); return true; }
+      const sb = _sb;
+      try {
+        const { error } = await sb.from('savings').delete().eq('id', id).eq('user_id', uid());
+        if (error) { showToast(error.message, 'danger'); return false; }
+        return true;
+      } catch(e) { showToast(e.message, 'danger'); return false; }
+    }
+
     // ── Real-time subscriptions (no-op in demo mode) ─────────────
     function subscribeRealtime(callback) {
       if (_demoMode) return; // demo mode has no realtime
@@ -2105,13 +2242,13 @@
     async function adminFetchAllIncome() {
       if (_demoMode) return _demoData.income;
       const sb = _sb;
-      const { data } = await sb.from('income').select('*').order('date', { ascending: false });
+      const { data } = await sb.from('income').select('*').order('transaction_date', { ascending: false });
       return data || [];
     }
     async function adminFetchAllExpenses() {
       if (_demoMode) return _demoData.expenses;
       const sb = _sb;
-      const { data } = await sb.from('expenses').select('*').order('date', { ascending: false });
+      const { data } = await sb.from('expenses').select('*').order('transaction_date', { ascending: false });
       return data || [];
     }
     async function adminToggleLock(userId, locked) {
@@ -2121,20 +2258,26 @@
       return !error;
     }
 
+    async function adminFetchAllSavings() {
+      if (_demoMode) return _demoData.savings || [];
+      const sb = _sb;
+      try { const { data } = await sb.from('savings').select('*'); return data || []; } catch(e) { return []; }
+    }
     async function renderAdmin() {
       const users = await adminFetchAllUsers();
       const allInc = await adminFetchAllIncome();
       const allExp = await adminFetchAllExpenses();
+      const allSav = await adminFetchAllSavings();
       document.getElementById('a-total').textContent = users.length;
       document.getElementById('a-active').textContent = users.filter(u => !u.locked).length;
       document.getElementById('a-locked').textContent = users.filter(u => u.locked).length;
       document.getElementById('a-requests').textContent = 'KES ' + fmtN(allExp.reduce((s, r) => s + +r.amount, 0));
       document.getElementById('a-tx').textContent = allInc.length + allExp.length;
-      document.getElementById('a-income').textContent = 'KES ' + fmtN(allInc.reduce((s, r) => s + +r.amount, 0));
+      document.getElementById('a-income').textContent = 'KES ' + fmtN(allInc.reduce((s, r) => s + (parseFloat(r.amount)||0), 0)) + ' | Sav: KES ' + fmtN(allSav.reduce((s, r) => s + (parseFloat(r.amount)||0), 0));
       // Admin chart
       const months = {};
-      allInc.forEach(r => { if (!r.date) return; const k = r.date.slice(0,7); if(!months[k]) months[k]={inc:0,exp:0}; months[k].inc+=+r.amount; });
-      allExp.forEach(r => { if (!r.date) return; const k = r.date.slice(0,7); if(!months[k]) months[k]={inc:0,exp:0}; months[k].exp+=+r.amount; });
+      allInc.forEach(r => { const _d = r.transaction_date || r.date; if (!_d) return; const k = _d.slice(0,7); if(!months[k]) months[k]={inc:0,exp:0}; months[k].inc+=(parseFloat(r.amount)||0); });
+      allExp.forEach(r => { const _d = r.transaction_date || r.date; if (!_d) return; const k = _d.slice(0,7); if(!months[k]) months[k]={inc:0,exp:0}; months[k].exp+=(parseFloat(r.amount)||0); });
       const keys = Object.keys(months).sort().slice(-6);
       const canvas = document.getElementById('adminChart');
       if (canvas._adminChart) canvas._adminChart.destroy();
@@ -2172,6 +2315,7 @@
     let _goals = [];
     let _budgets = [];
     let _shopping = [];
+    let _savings = [];
 
     // ─── Utilities ────────────────────────────────────────────────────
     function fmtN(n) { return Number(n || 0).toLocaleString('en-KE', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }
@@ -2261,14 +2405,15 @@
     async function refreshAllData() {
       // Each fetch is wrapped individually — one failure won't block the rest
       const safe = async (fn) => { try { return await fn(); } catch(e) { console.warn('fetch error:', e); return []; } };
-      const [inc, exp, gls, bud, shp] = await Promise.all([
-        safe(fetchIncome), safe(fetchExpenses), safe(fetchGoals), safe(fetchBudgets), safe(fetchShopping)
+      const [inc, exp, gls, bud, shp, sav] = await Promise.all([
+        safe(fetchIncome), safe(fetchExpenses), safe(fetchGoals), safe(fetchBudgets), safe(fetchShopping), safe(fetchSavings)
       ]);
       _income   = Array.isArray(inc) ? inc : [];
       _expenses = Array.isArray(exp) ? exp : [];
       _goals    = Array.isArray(gls) ? gls : [];
       _budgets  = Array.isArray(bud) ? bud : [];
       _shopping = Array.isArray(shp) ? shp : [];
+      _savings  = Array.isArray(sav) ? sav : [];
     }
 
     function hideLoader() {
@@ -2302,6 +2447,7 @@
         case 'shopping': renderShop(); break;
         case 'reports': renderReports(); break;
         case 'advice': renderAdvice(); break;
+        case 'savings': renderSavings(); break;
         case 'admin': if (isAdmin()) renderAdmin(); else showToast('Admin only.', 'danger'); break;
       }
     }
@@ -2310,14 +2456,15 @@
     let pieInst = null, monthInst = null;
 
     function calcTotals() {
-      const income = _income.reduce((s, r) => s + +r.amount, 0);
-      const expense = _expenses.reduce((s, r) => s + +r.amount, 0);
-      return { income, expense, balance: income - expense };
+      const income = _income.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+      const expense = _expenses.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+      const savings = _savings.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+      return { income, expense, balance: income - expense, savings };
     }
 
     function renderDashboard() {
       const { income, expense, balance } = calcTotals();
-      const rate = income > 0 ? Math.round((balance / income) * 100) : 0;
+      const rate = (income > 0 && isFinite(balance)) ? Math.round((balance / income) * 100) : 0;
 
       document.getElementById('d-income').textContent = fmt(income);
       document.getElementById('d-income-c').textContent = _income.length + ' transaction' + (_income.length !== 1 ? 's' : '');
@@ -2328,12 +2475,18 @@
 
       renderPieChart(income, expense);
       renderMonthChart();
+      // Savings dashboard card
+      const savTotal = _savings.reduce((s, r) => s + +(r.amount || 0), 0);
+      const savEl = document.getElementById('d-savings');
+      const savCEl = document.getElementById('d-savings-c');
+      if (savEl) savEl.textContent = fmt(savTotal);
+      if (savCEl) savCEl.textContent = _savings.length + ' entr' + (_savings.length !== 1 ? 'ies' : 'y');
 
       // Recent — last 5 combined
       const all = [
         ..._income.map(r => ({ ...r, type: 'income' })),
         ..._expenses.map(r => ({ ...r, type: 'expense' }))
-      ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+      ].sort((a, b) => new Date(b.transaction_date || b.date) - new Date(a.transaction_date || a.date)).slice(0, 5);
       document.getElementById('recent-list').innerHTML = all.length ? all.map(t => txRow(t, false)).join('') : '<div class="empty-state">No transactions yet. Add your first one!</div>';
     }
 
@@ -2356,8 +2509,8 @@
 
     function renderMonthChart() {
       const months = {};
-      _income.forEach(r => { const k = r.date.slice(0, 7); if (!months[k]) months[k] = { income: 0, expense: 0 }; months[k].income += +r.amount; });
-      _expenses.forEach(r => { const k = r.date.slice(0, 7); if (!months[k]) months[k] = { income: 0, expense: 0 }; months[k].expense += +r.amount; });
+      _income.forEach(r => { const k = (r.transaction_date || r.date || '').slice(0, 7); if (!k) return; if (!months[k]) months[k] = { income: 0, expense: 0 }; months[k].income += (parseFloat(r.amount) || 0); });
+      _expenses.forEach(r => { const k = (r.transaction_date || r.date || '').slice(0, 7); if (!k) return; if (!months[k]) months[k] = { income: 0, expense: 0 }; months[k].expense += (parseFloat(r.amount) || 0); });
       const keys = Object.keys(months).sort().slice(-6);
       const labels = keys.map(k => { const [y, m] = k.split('-'); return new Date(+y, +m - 1).toLocaleString('en', { month: 'short' }); });
       const canvas = document.getElementById('monthChart');
@@ -2382,7 +2535,7 @@
     <div class="tx-icon ${t.type}">${inc ? '💰' : catIcon(t.category || t.cat)}</div>
     <div class="tx-details">
       <div class="tx-name">${esc(desc)}</div>
-      <div class="tx-meta">${esc(t.category || t.cat || '')} · ${fmtDate(t.date)}</div>
+      <div class="tx-meta">${esc(t.category || t.cat || '')} · ${fmtDate(t.transaction_date || t.date)}</div>
     </div>
     <div class="tx-amount ${t.type}">${inc ? '+' : '-'}KES ${fmtN(t.amount)}</div>
     ${showDel ? `<button class="tx-del" onclick="delTx('${t.id}','${t.type}')" title="Delete">✕</button>` : ''}
@@ -2410,15 +2563,15 @@
         ..._expenses.map(r => ({ ...r, type: 'expense' }))
       ];
 
-      const allMonths = [...new Set(all.map(t => t.date.slice(0, 7)))].sort().reverse();
+      const allMonths = [...new Set(all.map(t => (t.transaction_date || t.date || '').slice(0, 7)).filter(Boolean))].sort().reverse();
       const mSel = document.getElementById('f-month');
       const cur = mSel.value;
       mSel.innerHTML = '<option value="">All months</option>' + allMonths.map(m => `<option value="${m}"${m === cur ? ' selected' : ''}>${fmtMonth(m)}</option>`).join('');
 
       if (type) all = all.filter(t => t.type === type);
-      if (month) all = all.filter(t => t.date.startsWith(month));
+      if (month) all = all.filter(t => (t.transaction_date || t.date || '').startsWith(month));
       if (search) all = all.filter(t => ((t.description || t.desc || '') + (t.category || t.cat || '')).toLowerCase().includes(search));
-      all.sort((a, b) => new Date(b.date) - new Date(a.date));
+      all.sort((a, b) => new Date(b.transaction_date || b.date) - new Date(a.transaction_date || a.date));
       document.getElementById('all-tx-list').innerHTML = all.length ? all.map(t => txRow(t)).join('') : '<div class="empty-state">No transactions found.</div>';
     }
 
@@ -2466,12 +2619,12 @@
     function renderBudget() {
       const now = new Date();
       const cm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const mTxs = _expenses.filter(t => t.date.startsWith(cm));
+      const mTxs = _expenses.filter(t => (t.transaction_date || t.date || '').startsWith(cm));
 
       function rows(items) {
         if (!items.length) return '<div class="empty-state">No items. Click "+ Item" to add.</div>';
         return items.map(b => {
-          const spent = mTxs.filter(t => (t.category || t.cat) === b.category).reduce((s, t) => s + +t.amount, 0);
+          const spent = mTxs.filter(t => (t.category || t.cat) === b.category).reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
           const pct = b.planned > 0 ? Math.min(100, Math.round((spent / +b.planned) * 100)) : 0;
           const col = pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : '#059669';
           return `<div class="budget-row">
@@ -2548,6 +2701,50 @@
       if (ok) { await refreshAllData(); renderShop(); showToast('Item removed.', 'success'); }
     }
 
+
+    // ─── SAVINGS PAGE ─────────────────────────────────────────────────────
+    function renderSavings() {
+      const total = _savings.reduce((s, r) => s + +(r.amount || 0), 0);
+      const totalEl = document.getElementById('sv-total');
+      const countEl = document.getElementById('sv-count');
+      if (totalEl) totalEl.textContent = fmt(total);
+      if (countEl) countEl.textContent = _savings.length + ' entr' + (_savings.length !== 1 ? 'ies' : 'y');
+      const listEl = document.getElementById('savings-list');
+      if (!listEl) return;
+      if (!_savings.length) {
+        listEl.innerHTML = '<div class="empty-state">No savings entries yet. Add your first one!</div>';
+        return;
+      }
+      listEl.innerHTML = _savings.map(s => `<div class="tx-item">
+    <div class="tx-icon income" style="background:#F3E8FF;font-size:17px">🏦</div>
+    <div class="tx-details">
+      <div class="tx-name">${esc(s.description)}</div>
+      <div class="tx-meta">${esc(s.category || 'General')} · ${fmtDate(s.transaction_date || s.date)}</div>
+    </div>
+    <div class="tx-amount income" style="color:#8B5CF6">+KES ${fmtN(s.amount)}</div>
+    <button class="tx-del" onclick="delSavingsUI('${s.id}')" title="Delete">✕</button>
+  </div>`).join('');
+    }
+
+    async function addSavingsUI() {
+      const desc = document.getElementById('sv-desc').value.trim();
+      const amt = parseFloat(document.getElementById('sv-amt').value);
+      const cat = document.getElementById('sv-cat').value;
+      const date = document.getElementById('sv-date').value || new Date().toISOString().split('T')[0];
+      if (!desc || !amt || amt <= 0) return showToast('Please fill in description and a valid amount.', 'danger');
+      setBtn('btn-add-savings', true, 'Saving…');
+      const ok = await addSavings({ description: desc, amount: amt, category: cat, transaction_date: date });
+      setBtn('btn-add-savings', false, 'Add Savings');
+      if (ok) { closeModal(); await refreshAllData(); renderSavings(); renderDashboard(); showToast('Savings entry added!', 'success'); }
+    }
+
+    async function delSavingsUI(id) {
+      if (!confirm('Delete this savings entry?')) return;
+      const ok = await deleteSavings(id);
+      if (ok) { await refreshAllData(); renderSavings(); renderDashboard(); showToast('Savings entry deleted.', 'success'); }
+    }
+
+
     // ─── REPORTS ──────────────────────────────────────────────────────
     function renderReports() {
       const all = [
@@ -2556,9 +2753,9 @@
       ];
       if (!all.length) { document.getElementById('reports-list').innerHTML = '<div class="empty-state">No data yet.</div>'; return; }
       const grouped = {};
-      all.forEach(t => { const k = t.date.slice(0, 7); if (!grouped[k]) grouped[k] = []; grouped[k].push(t); });
+      all.forEach(t => { const k = (t.transaction_date || t.date || '').slice(0, 7); if (!k) return; if (!grouped[k]) grouped[k] = []; grouped[k].push(t); });
       document.getElementById('reports-list').innerHTML = Object.keys(grouped).sort().reverse().map(k => {
-        const items = grouped[k].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const items = grouped[k].sort((a, b) => new Date(b.transaction_date || b.date) - new Date(a.transaction_date || a.date));
         const inc = items.filter(t => t.type === 'income').reduce((s, t) => s + +t.amount, 0);
         const exp = items.filter(t => t.type === 'expense').reduce((s, t) => s + +t.amount, 0);
         return `<div>
@@ -2603,7 +2800,7 @@
       if (!desc || !amt || amt <= 0) return showToast('Please fill in all fields with valid values.', 'danger');
       const btnId = p ? 'btn-add-income' : 'btn-add-expense';
       setBtn(btnId, true, 'Saving…');
-      const ok = p ? await addIncome({ description: desc, amount: amt, category: cat, date }) : await addExpense({ description: desc, amount: amt, category: cat, date });
+      const ok = p ? await addIncome({ description: desc, amount: amt, category: cat, transaction_date: date }) : await addExpense({ description: desc, amount: amt, category: cat, transaction_date: date });
       setBtn(btnId, false, p ? 'Add Income' : 'Add Expense');
       if (ok) {
         closeModal();
@@ -2617,9 +2814,10 @@
     function openModal(type) {
       closeModal();
       const today = new Date().toISOString().split('T')[0];
-      const map = { income: 'm-income', expense: 'm-expense', goal: 'm-goal', budget: 'm-budget', shop: 'm-shop' };
+      const map = { income: 'm-income', expense: 'm-expense', goal: 'm-goal', budget: 'm-budget', shop: 'm-shop', savings: 'm-savings' };
       if (type === 'income') document.getElementById('i-date').value = today;
       if (type === 'expense') document.getElementById('e-date').value = today;
+      if (type === 'savings') document.getElementById('sv-date').value = today;
       document.getElementById(map[type]).style.display = '';
       document.getElementById('modal-overlay').classList.add('open');
     }
@@ -2650,7 +2848,7 @@
         doc.setTextColor(255, 255, 255); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
         doc.text(LOGO_TEXT, M, 13);
         doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-        doc.text('Financial Management System · Powered by Supabase', M, 20);
+        doc.text('Financial Management System · Developed by Becam Aziz W.', M, 20);
         doc.text(`Generated: ${new Date().toLocaleString('en-KE')}`, W - M, 20, { align: 'right' });
         y = 34;
       }
@@ -2703,7 +2901,7 @@
           doc.setPage(i); doc.setFillColor(11, 30, 61); doc.rect(0, 283, W, 14, 'F');
           doc.setTextColor(255, 255, 255); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
           doc.text('BTECH Track Financial System', M, 289);
-          doc.text('Cloud-powered by Supabase · Confidential', M, 294);
+          doc.text('Developed by Becam Aziz W. · Cloud-powered by Supabase · Confidential', M, 294);
           doc.text(`Page ${i} of ${pages}`, W - M, 291, { align: 'right' });
         }
       }
@@ -2712,7 +2910,7 @@
       const { income, expense, balance } = calcTotals();
 
       if (type === 'all' || type === 'transactions') {
-        const all = [..._income.map(r => ({ ...r, type: 'income' })), ..._expenses.map(r => ({ ...r, type: 'expense' }))].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const all = [..._income.map(r => ({ ...r, type: 'income' })), ..._expenses.map(r => ({ ...r, type: 'expense' }))].sort((a, b) => new Date(b.transaction_date || b.date) - new Date(a.transaction_date || a.date));
         drawTitle('Financial Report — Transaction History', 'All time');
         summaryBox([
           { label: 'TOTAL INCOME', value: 'KES ' + fmtN(income), bg: [236, 253, 245], valColor: [5, 150, 105], labelColor: [6, 95, 70] },
@@ -2723,8 +2921,20 @@
         tableHeader(cols);
         all.forEach((t, i) => {
           const isInc = t.type === 'income';
-          tableRow(cols, [t.description || t.desc, t.category || t.cat || '', fmtDate(t.date), isInc ? 'Income' : 'Expense', (isInc ? '+' : '-') + fmtN(t.amount)], i, isInc ? [5, 150, 105] : [220, 38, 38]);
+          tableRow(cols, [t.description || t.desc, t.category || t.cat || '', fmtDate(t.transaction_date || t.date), isInc ? 'Income' : 'Expense', (isInc ? '+' : '-') + fmtN(t.amount)], i, isInc ? [5, 150, 105] : [220, 38, 38]);
         });
+      }
+
+      if (type === 'all' && _savings.length) {
+        y += 8;
+        const savTotal = _savings.reduce((s, r) => s + +(r.amount || 0), 0);
+        drawTitle('Savings Summary', '');
+        summaryBox([
+          { label: 'TOTAL SAVED', value: 'KES ' + fmtN(savTotal), bg: [243, 232, 255], valColor: [139, 92, 246], labelColor: [109, 40, 217] },
+        ]);
+        const scols = [{ label: 'DESCRIPTION', w: 65 }, { label: 'CATEGORY', w: 40 }, { label: 'DATE', w: 38 }, { label: 'AMOUNT (KES)', w: CW - 143, right: true }];
+        tableHeader(scols);
+        _savings.forEach((s, i) => tableRow(scols, [s.description, s.category || 'General', fmtDate(s.transaction_date || s.date), fmtN(s.amount)], i, [139, 92, 246]));
       }
 
       if (type === 'goals') {
@@ -2783,14 +2993,34 @@
         users.forEach((u, i) => tableRow(cols, [u.name || '', u.email, u.role, new Date(u.created_at).toLocaleDateString('en-KE'), u.locked ? 'Locked' : 'Active'], i, u.locked ? [220, 38, 38] : [5, 150, 105]));
       }
 
+
+      if (type === 'savings') {
+        const savTotal = _savings.reduce((s, r) => s + +(r.amount || 0), 0);
+        drawTitle('Savings Report', new Date().toLocaleDateString('en-KE', { month: 'long', year: 'numeric' }));
+        summaryBox([
+          { label: 'TOTAL SAVED', value: 'KES ' + fmtN(savTotal), bg: [243, 232, 255], valColor: [139, 92, 246], labelColor: [109, 40, 217] },
+          { label: 'ENTRIES', value: String(_savings.length), bg: [240, 244, 248], valColor: [15, 23, 42], labelColor: [100, 116, 139] },
+        ]);
+        const cols = [{ label: 'DESCRIPTION', w: 65 }, { label: 'CATEGORY', w: 40 }, { label: 'DATE', w: 38 }, { label: 'AMOUNT (KES)', w: CW - 143, right: true }];
+        tableHeader(cols);
+        _savings.forEach((s, i) => tableRow(cols, [s.description, s.category || 'General', fmtDate(s.transaction_date || s.date), fmtN(s.amount)], i, [139, 92, 246]));
+        if (!_savings.length) { doc.setTextColor(100, 116, 139); doc.setFontSize(9); doc.text('No savings recorded yet.', M, y + 8); y += 12; }
+      }
+
       drawFooters();
-      const names = { all: 'full-report', transactions: 'transactions', goals: 'goals', budget: 'monthly-budget', weekly: 'weekly-budget', shopping: 'shopping-list', admin: 'admin-users' };
+      const names = { all: 'full-report', transactions: 'transactions', goals: 'goals', budget: 'monthly-budget', weekly: 'weekly-budget', shopping: 'shopping-list', admin: 'admin-users', savings: 'savings' };
       doc.save(`btech-track-${names[type] || type}-${new Date().toISOString().slice(0, 10)}.pdf`);
     }
 
     // ═══════════════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════════════
+
+    // ── Global error handler ────────────────────────────────────
+    window.addEventListener('unhandledrejection', (e) => {
+      console.warn('Unhandled promise rejection:', e.reason);
+      // Don't show toast for routine Supabase network errors
+    });
 
     // ── START ────────────────────────────────────────────────────
     initAuth();
