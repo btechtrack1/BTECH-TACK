@@ -1253,13 +1253,11 @@
       inset: 0;
       background: var(--bg);
       z-index: 9000;
+      display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
       gap: 14px
-    }
-    #app-loading.visible {
-      display: flex !important;
     }
 
     #app-loading .spinner {
@@ -1316,7 +1314,7 @@
   </div>
 
   <!-- ── FULLSCREEN LOADER ─────────────────────────────────────── -->
-  <div id="app-loading" class="visible">
+  <div id="app-loading">
     <div class="spinner"></div>
     <p>Loading BTECH Track…</p>
   </div>
@@ -1761,248 +1759,174 @@
     // SUPABASE CONFIG — replace these with your actual project values
     // Get them from: https://supabase.com/dashboard → your project → Settings → API
     // ═══════════════════════════════════════════════════════════
-    const SUPABASE_URL = 'https://xfiamuvecnxogezitilw.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmaWFtdXZlY254b2dleml0aWx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjI5NjgsImV4cCI6MjA5Mzk5ODk2OH0.7co8XTHMseulzKZ1OLfYaDkqvUPlswZM6d1xTgmOFeA';
+    const SUPABASE_URL = 'https://rtyjrdejyhlwrjozdsyy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0eWpyZGVqeWhsd3Jqb3pkc3l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTczOTQsImV4cCI6MjA5NDA5MzM5NH0.BQoi0ihl18crOLKy4MUcKavBYCT8VWTwGBaEQrmU0gc';
 
     // ── Supabase client ──────────────────────────────────────────
-    let _supabase = null;
-    let _supabaseReady = false;
-
-    function getSupabase() {
-      if (!_supabase) {
-        if (SUPABASE_URL.includes('YOUR_PROJECT_REF') || SUPABASE_ANON_KEY.includes('YOUR_ANON_KEY')) {
-          return null;
-        }
-        _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        _supabaseReady = true;
-      }
-      return _supabase;
-    }
+    const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ── Auth state ───────────────────────────────────────────────
     let currentUser = null;
     let currentProfile = null;
     let _demoMode = false;
+    let _demoData = { income:[], expenses:[], goals:[], budgets:[], shopping:[], nextId:1 };
 
-    // ── Demo data store (used when Supabase is not configured) ───
-    let _demoData = {
-      income: [],
-      expenses: [],
-      goals: [],
-      budgets: [],
-      shopping: [],
-      nextId: 1
-    };
+    function isAdmin() { return _demoMode || currentProfile?.role === 'admin'; }
 
-    function isDemoMode() { return _demoMode; }
-    function isAdmin() {
-      if (_demoMode) return true;
-      return currentProfile?.role === 'admin';
+    // ── Show / Hide screens ──────────────────────────────────────
+    function el(id) { return document.getElementById(id); }
+    function showLoader() {
+      el('app-loading').setAttribute('style','display:flex!important');
+      el('auth-screen').setAttribute('style','display:none!important');
+      el('app-screen').setAttribute('style','display:none!important');
+    }
+    function showAuth() {
+      el('app-loading').setAttribute('style','display:none!important');
+      el('app-screen').setAttribute('style','display:none!important');
+      el('auth-screen').setAttribute('style','display:flex!important');
+    }
+    function showApp() {
+      el('app-loading').setAttribute('style','display:none!important');
+      el('auth-screen').setAttribute('style','display:none!important');
+      el('app-screen').setAttribute('style','display:flex!important');
     }
 
-    // ── initAuth ─────────────────────────────────────────────────
-    let _appLoaded = false; // guard against double loadApp calls
-
+    // ── initAuth — called once on page load ──────────────────────
     async function initAuth() {
-      const sb = getSupabase();
-      if (!sb) {
-        _demoMode = true;
-        currentUser = { id: 'demo', email: 'demo@btechtrack.local' };
-        currentProfile = { name: 'Demo User', role: 'admin', id: 'demo' };
-        await loadApp();
-        return;
+      // Password reset link?
+      if (window.location.hash.includes('type=recovery')) {
+        showAuth(); switchAuthTab('reset'); return;
       }
-
-      // Check for password reset token in URL
-      const hash = window.location.hash;
-      if (hash && hash.includes('type=recovery')) {
-        document.getElementById('app-loading').classList.remove('visible'); document.getElementById('app-loading').style.display = 'none';
-        document.getElementById('auth-screen').style.display = 'flex';
-        switchAuthTab('reset');
-        return;
-      }
-
-      // Listen for auth changes FIRST (before getSession) to catch all events
-      sb.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          currentUser = session.user;
-          await loadProfile(session.user.id);
-          document.getElementById('auth-screen').style.display = 'none';
-          document.getElementById('app-loading').classList.remove('visible'); document.getElementById('app-loading').style.display = 'none';
-          if (!_appLoaded) {
-            _appLoaded = true;
-            await loadApp();
-          }
-        } else if (event === 'SIGNED_OUT') {
-          _appLoaded = false;
-          currentUser = null;
-          currentProfile = null;
-          document.getElementById('app-screen').style.display = 'none';
-          document.getElementById('auth-screen').style.display = 'flex';
-          switchAuthTab('login');
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          currentUser = session.user;
-        }
-      });
-
-      // Then check for an existing session
       try {
-        const { data: { session }, error } = await sb.auth.getSession();
-        if (session?.user && !_appLoaded) {
-          currentUser = session.user;
-          await loadProfile(session.user.id);
-          _appLoaded = true;
-          await loadApp();
-        } else if (!session) {
-          document.getElementById('app-loading').classList.remove('visible'); document.getElementById('app-loading').style.display = 'none';
-          document.getElementById('auth-screen').style.display = 'flex';
-          switchAuthTab('login');
-        }
-      } catch(e) {
-        console.error('Session check failed:', e);
-        document.getElementById('app-loading').classList.remove('visible'); document.getElementById('app-loading').style.display = 'none';
-        document.getElementById('auth-screen').style.display = 'flex';
-        switchAuthTab('login');
-      }
-    }
-
-    async function loadProfile(userId) {
-      const sb = getSupabase();
-      if (!sb) return;
-      try {
-        const { data, error } = await sb.from('profiles').select('*').eq('id', userId).maybeSingle();
-        if (data) {
-          currentProfile = data;
+        const { data } = await _sb.auth.getSession();
+        if (data?.session?.user) {
+          currentUser = data.session.user;
+          currentProfile = await safeLoadProfile(currentUser);
+          enterApp();
         } else {
-          // Profile row doesn't exist yet — use auth metadata
-          const meta = currentUser?.user_metadata || {};
-          currentProfile = {
-            id: userId,
-            name: meta.full_name || meta.name || currentUser?.email?.split('@')[0] || 'User',
-            role: 'user',
-            email: currentUser?.email
-          };
-          // Try to create the profile row
-          try { await sb.from('profiles').upsert(currentProfile); } catch(e2) {}
+          showAuth(); switchAuthTab('login');
         }
       } catch(e) {
-        currentProfile = {
-          id: userId,
-          name: currentUser?.email?.split('@')[0] || 'User',
-          role: 'user',
-          email: currentUser?.email
-        };
+        showAuth(); switchAuthTab('login');
       }
     }
 
-    // ── Login / Signup / Logout ───────────────────────────────────
+    async function safeLoadProfile(user) {
+      try {
+        const { data } = await _sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+        if (data) return data;
+      } catch(e) {}
+      return {
+        id: user.id,
+        name: user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0],
+        email: user.email,
+        role: 'user'
+      };
+    }
+
+    // ── Enter the main app — no async waiting, instant ───────────
+    function enterApp() {
+      showApp();
+      document.getElementById('user-badge').textContent = currentProfile?.name || currentUser?.email?.split('@')[0] || 'User';
+      document.getElementById('admin-nav').style.display = isAdmin() ? '' : 'none';
+      if (_demoMode) document.getElementById('demo-banner').style.display = '';
+      setGreeting();
+      // Show dashboard immediately
+      document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const dp = document.getElementById('page-dashboard');
+      if (dp) dp.style.display = '';
+      const db = document.querySelector('.nav-btn[onclick*="dashboard"]');
+      if (db) db.classList.add('active');
+      // Load data then render — errors won't block the UI
+      refreshAllData().then(() => { try { renderDashboard(); } catch(e){} }).catch(()=>{});
+      subscribeRealtime(() => {
+        refreshAllData().then(() => {
+          try {
+            const active = document.querySelector('.nav-btn.active');
+            const pg = active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1];
+            if (pg) renderPage(pg);
+          } catch(e) {}
+        }).catch(()=>{});
+      });
+    }
+
+    // ── LOGIN ────────────────────────────────────────────────────
     async function doLogin() {
-      if (_demoMode) return;
-      const sb = getSupabase();
       const email = document.getElementById('li-email').value.trim();
-      const pass = document.getElementById('li-pass').value;
+      const pass  = document.getElementById('li-pass').value;
       const errEl = document.getElementById('auth-error-login');
       errEl.style.display = 'none';
-      if (!email || !pass) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = ''; return; }
+      if (!email || !pass) { errEl.textContent = 'Enter your email and password.'; errEl.style.display=''; return; }
       setBtn('btn-login', true, 'Signing in…');
-
-      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-      setBtn('btn-login', false, 'Sign In');
-
-      if (error) {
-        // Give user-friendly error messages
-        if (error.message.includes('Invalid login') || error.message.includes('invalid_credentials')) {
-          errEl.textContent = 'Incorrect email or password. Please try again.';
-        } else if (error.message.includes('Email not confirmed')) {
-          errEl.textContent = 'Please confirm your email address first. Check your inbox.';
-        } else {
-          errEl.textContent = error.message;
+      try {
+        const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
+        setBtn('btn-login', false, 'Sign In');
+        if (error) {
+          errEl.textContent = error.message.includes('Invalid') ? 'Wrong email or password.' : error.message;
+          errEl.style.display = ''; return;
         }
-        errEl.style.display = '';
-        return;
-      }
-
-      // Manually trigger app load in case onAuthStateChange is slow
-      if (data?.user && !_appLoaded) {
         currentUser = data.user;
-        await loadProfile(data.user.id);
-        _appLoaded = true;
-        document.getElementById('auth-screen').style.display = 'none';
-        await loadApp();
+        currentProfile = await safeLoadProfile(data.user);
+        enterApp();
+      } catch(e) {
+        setBtn('btn-login', false, 'Sign In');
+        errEl.textContent = 'Login failed. Try again.'; errEl.style.display='';
       }
     }
 
+    // ── SIGNUP ───────────────────────────────────────────────────
     async function doSignup() {
-      if (_demoMode) return;
-      const sb = getSupabase();
-      const name = document.getElementById('su-name').value.trim();
+      const name  = document.getElementById('su-name').value.trim();
       const email = document.getElementById('su-email').value.trim();
-      const pass = document.getElementById('su-pass').value;
+      const pass  = document.getElementById('su-pass').value;
       const pass2 = document.getElementById('su-pass2').value;
       const errEl = document.getElementById('auth-error-signup');
       const sucEl = document.getElementById('auth-success-signup');
       errEl.style.display = 'none'; sucEl.style.display = 'none';
-      if (!name || !email || !pass) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = ''; return; }
-      if (pass !== pass2) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = ''; return; }
-      if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = ''; return; }
+      if (!name||!email||!pass) { errEl.textContent='Fill in all fields.'; errEl.style.display=''; return; }
+      if (pass !== pass2)       { errEl.textContent='Passwords do not match.'; errEl.style.display=''; return; }
+      if (pass.length < 6)      { errEl.textContent='Password needs 6+ characters.'; errEl.style.display=''; return; }
       setBtn('btn-signup', true, 'Creating account…');
+      try {
+        // 1. Create account
+        const { data: su, error: suErr } = await _sb.auth.signUp({ email, password: pass, options:{ data:{ full_name: name } } });
+        if (suErr) { setBtn('btn-signup',false,'Create Account'); errEl.textContent=suErr.message; errEl.style.display=''; return; }
 
-      // Step 1: Sign up
-      const { data: signUpData, error: signUpError } = await sb.auth.signUp({
-        email, password: pass,
-        options: { data: { full_name: name } }
-      });
-
-      if (signUpError) {
+        // 2. Sign in immediately
+        const { data: si, error: siErr } = await _sb.auth.signInWithPassword({ email, password: pass });
         setBtn('btn-signup', false, 'Create Account');
-        errEl.textContent = signUpError.message;
-        errEl.style.display = '';
-        return;
+
+        if (siErr) {
+          // Email confirmation required
+          sucEl.textContent = 'Account created! Check your email to confirm, then sign in.';
+          sucEl.style.display = '';
+          setTimeout(() => switchAuthTab('login'), 3500);
+          return;
+        }
+
+        // 3. Save profile (best-effort)
+        currentUser = si.user;
+        currentProfile = { id: si.user.id, name, email, role:'user' };
+        try { await _sb.from('profiles').upsert({ id:si.user.id, name, email, role:'user' }); } catch(e){}
+
+        // 4. Go to app
+        enterApp();
+      } catch(e) {
+        setBtn('btn-signup', false, 'Create Account');
+        errEl.textContent = 'Signup failed: ' + e.message; errEl.style.display='';
       }
-
-      // Step 2: Immediately sign in (works whether email confirmation is on or off)
-      const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password: pass });
-
-      setBtn('btn-signup', false, 'Create Account');
-
-      if (signInError) {
-        // Sign in failed — likely email confirmation is required
-        sucEl.textContent = '✅ Account created! Please check your email to confirm your account, then sign in.';
-        sucEl.style.display = '';
-        setTimeout(() => switchAuthTab('login'), 3000);
-        return;
-      }
-
-      // Step 3: Store profile in profiles table
-      const userId = signInData?.user?.id;
-      if (userId) {
-        try {
-          await sb.from('profiles').upsert({ id: userId, name, email, role: 'user' });
-        } catch(e) {}
-      }
-
-      // Step 4: Set current user and go to app
-      currentUser = signInData.user;
-      currentProfile = { id: userId, name, email, role: 'user' };
-      _appLoaded = true;
-      await loadApp();
     }
 
     async function doLogout() {
-      if (_demoMode) {
-        // Reset demo session
-        currentUser = null; currentProfile = null; _demoMode = false;
-        document.getElementById('app-screen').style.display = 'none';
-        document.getElementById('app-loading').style.display = 'flex';
-        setTimeout(() => initAuth(), 300);
-        return;
-      }
-      const sb = getSupabase();
-      await sb.auth.signOut();
+      currentUser = null; currentProfile = null;
+      if (_demoMode) { _demoMode = false; showAuth(); switchAuthTab('login'); return; }
+      try { await _sb.auth.signOut(); } catch(e) {}
+      showAuth(); switchAuthTab('login');
     }
 
     async function doForgotPassword() {
-      const sb = getSupabase();
+      const sb = _sb;
       const email = document.getElementById('fp-email').value.trim();
       const errEl = document.getElementById('auth-error-forgot');
       const sucEl = document.getElementById('auth-success-forgot');
@@ -2016,7 +1940,7 @@
     }
 
     async function doUpdatePassword() {
-      const sb = getSupabase();
+      const sb = _sb;
       const pass = document.getElementById('rp-pass').value;
       const pass2 = document.getElementById('rp-pass2').value;
       const errEl = document.getElementById('auth-error-reset');
@@ -2039,20 +1963,20 @@
     // ── Income ───────────────────────────────────────────────────
     async function fetchIncome() {
       if (_demoMode) return _demoData.income;
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('income').select('*').eq('user_id', uid()).order('date', { ascending: false });
       return data || [];
     }
     async function addIncome(row) {
       if (_demoMode) { _demoData.income.unshift({ id: demoId(), user_id: 'demo', ...row }); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('income').insert({ ...row, user_id: uid() });
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
     }
     async function deleteIncome(id) {
       if (_demoMode) { _demoData.income = _demoData.income.filter(r => r.id !== id); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('income').delete().eq('id', id).eq('user_id', uid());
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
@@ -2061,20 +1985,20 @@
     // ── Expenses ─────────────────────────────────────────────────
     async function fetchExpenses() {
       if (_demoMode) return _demoData.expenses;
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('expenses').select('*').eq('user_id', uid()).order('date', { ascending: false });
       return data || [];
     }
     async function addExpense(row) {
       if (_demoMode) { _demoData.expenses.unshift({ id: demoId(), user_id: 'demo', ...row }); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('expenses').insert({ ...row, user_id: uid() });
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
     }
     async function deleteExpense(id) {
       if (_demoMode) { _demoData.expenses = _demoData.expenses.filter(r => r.id !== id); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('expenses').delete().eq('id', id).eq('user_id', uid());
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
@@ -2083,20 +2007,20 @@
     // ── Goals ────────────────────────────────────────────────────
     async function fetchGoals() {
       if (_demoMode) return _demoData.goals;
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('goals').select('*').eq('user_id', uid()).order('created_at', { ascending: false });
       return data || [];
     }
     async function addGoal(row) {
       if (_demoMode) { _demoData.goals.unshift({ id: demoId(), user_id: 'demo', created_at: new Date().toISOString(), ...row }); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('goals').insert({ ...row, user_id: uid() });
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
     }
     async function deleteGoal(id) {
       if (_demoMode) { _demoData.goals = _demoData.goals.filter(r => r.id !== id); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('goals').delete().eq('id', id).eq('user_id', uid());
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
@@ -2105,20 +2029,20 @@
     // ── Budgets ──────────────────────────────────────────────────
     async function fetchBudgets() {
       if (_demoMode) return _demoData.budgets;
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('budgets').select('*').eq('user_id', uid()).order('created_at', { ascending: false });
       return data || [];
     }
     async function addBudget(row) {
       if (_demoMode) { _demoData.budgets.unshift({ id: demoId(), user_id: 'demo', created_at: new Date().toISOString(), ...row }); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('budgets').insert({ ...row, user_id: uid() });
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
     }
     async function deleteBudget(id) {
       if (_demoMode) { _demoData.budgets = _demoData.budgets.filter(r => r.id !== id); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('budgets').delete().eq('id', id).eq('user_id', uid());
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
@@ -2127,26 +2051,26 @@
     // ── Shopping ─────────────────────────────────────────────────
     async function fetchShopping() {
       if (_demoMode) return _demoData.shopping;
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('shopping').select('*').eq('user_id', uid()).order('created_at', { ascending: false });
       return data || [];
     }
     async function addShoppingItem(row) {
       if (_demoMode) { _demoData.shopping.unshift({ id: demoId(), user_id: 'demo', done: false, created_at: new Date().toISOString(), ...row }); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('shopping').insert({ ...row, user_id: uid(), done: false });
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
     }
     async function toggleShoppingItem(id, done) {
       if (_demoMode) { const i = _demoData.shopping.find(r => r.id === id); if (i) i.done = done; return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       await sb.from('shopping').update({ done }).eq('id', id).eq('user_id', uid());
       return true;
     }
     async function deleteShoppingItem(id) {
       if (_demoMode) { _demoData.shopping = _demoData.shopping.filter(r => r.id !== id); return true; }
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('shopping').delete().eq('id', id).eq('user_id', uid());
       if (error) { showToast(error.message, 'danger'); return false; }
       return true;
@@ -2155,7 +2079,7 @@
     // ── Real-time subscriptions (no-op in demo mode) ─────────────
     function subscribeRealtime(callback) {
       if (_demoMode) return; // demo mode has no realtime
-      const sb = getSupabase(); if (!sb) return;
+      const sb = _sb;
       try {
         sb.channel('btech-realtime')
           .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => callback(payload.table))
@@ -2168,25 +2092,25 @@
     // ═══════════════════════════════════════════════════════════
     async function adminFetchAllUsers() {
       if (_demoMode) return [{ id: 'demo', name: 'Demo User', email: 'demo@btechtrack.local', role: 'admin', locked: false, created_at: new Date().toISOString() }];
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
       return data || [];
     }
     async function adminFetchAllIncome() {
       if (_demoMode) return _demoData.income;
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('income').select('*').order('date', { ascending: false });
       return data || [];
     }
     async function adminFetchAllExpenses() {
       if (_demoMode) return _demoData.expenses;
-      const sb = getSupabase(); if (!sb) return [];
+      const sb = _sb;
       const { data } = await sb.from('expenses').select('*').order('date', { ascending: false });
       return data || [];
     }
     async function adminToggleLock(userId, locked) {
       if (_demoMode) return true;
-      const sb = getSupabase(); if (!sb) return false;
+      const sb = _sb;
       const { error } = await sb.from('profiles').update({ locked }).eq('id', userId);
       return !error;
     }
@@ -2288,47 +2212,61 @@
 
     // ─── Load App ─────────────────────────────────────────────────────
     async function loadApp() {
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('app-screen').style.display = 'flex';
+      // 1. Hide loader and auth screen immediately — show the app right away
+      hideLoader();
+      el('auth-screen').setAttribute('style','display:none!important');
+      el('app-screen').setAttribute('style','display:flex!important');
       if (_demoMode) document.getElementById('demo-banner').style.display = '';
 
-      // User badge
+      // 2. Fill in user info
       document.getElementById('user-badge').textContent = currentProfile?.name || currentUser?.email?.split('@')[0] || 'User';
-
-      // Admin nav
       document.getElementById('admin-nav').style.display = isAdmin() ? '' : 'none';
-
-      // Greeting
       setGreeting();
 
-      // Load all data then render dashboard
-      await refreshAllData();
+      // 3. Show dashboard tab active immediately
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const dashBtn = document.querySelector('.nav-btn[onclick*="dashboard"]');
+      if (dashBtn) dashBtn.classList.add('active');
+      document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+      const dashPage = document.getElementById('page-dashboard');
+      if (dashPage) dashPage.style.display = '';
 
-      // Set up real-time subscriptions
-      subscribeRealtime(async (table) => {
+      // 4. Load data in background — render dashboard once ready
+      try {
         await refreshAllData();
-        // Re-render active page
+      } catch(e) {
+        console.warn('Data load error (non-fatal):', e);
+      }
+      try {
+        renderDashboard();
+      } catch(e) {
+        console.warn('Render error (non-fatal):', e);
+      }
+
+      // 5. Set up real-time subscriptions
+      subscribeRealtime(async () => {
+        try { await refreshAllData(); } catch(e) {}
         const active = document.querySelector('.nav-btn.active');
         const page = active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1];
-        if (page) renderPage(page);
+        if (page) { try { renderPage(page); } catch(e) {} }
       });
-
-      hideLoader();
     }
 
     async function refreshAllData() {
+      // Each fetch is wrapped individually — one failure won't block the rest
+      const safe = async (fn) => { try { return await fn(); } catch(e) { console.warn('fetch error:', e); return []; } };
       const [inc, exp, gls, bud, shp] = await Promise.all([
-        fetchIncome(), fetchExpenses(), fetchGoals(), fetchBudgets(), fetchShopping()
+        safe(fetchIncome), safe(fetchExpenses), safe(fetchGoals), safe(fetchBudgets), safe(fetchShopping)
       ]);
-      _income = inc || [];
-      _expenses = exp || [];
-      _goals = gls || [];
-      _budgets = bud || [];
-      _shopping = shp || [];
+      _income   = Array.isArray(inc) ? inc : [];
+      _expenses = Array.isArray(exp) ? exp : [];
+      _goals    = Array.isArray(gls) ? gls : [];
+      _budgets  = Array.isArray(bud) ? bud : [];
+      _shopping = Array.isArray(shp) ? shp : [];
     }
 
     function hideLoader() {
-      document.getElementById('app-loading').classList.remove('visible'); document.getElementById('app-loading').style.display = 'none';
+      el('app-loading').setAttribute('style','display:none!important');
     }
 
     function setGreeting() {
@@ -2848,30 +2786,8 @@
     // INIT
     // ═══════════════════════════════════════════════════════════
 
-    // Safety net: if loading takes more than 6s, show login screen
-    const _loadTimeout = setTimeout(() => {
-      const loader = document.getElementById('app-loading');
-      if (loader && (loader.classList.contains('visible') || loader.style.display !== 'none')) {
-        loader.classList.remove('visible');
-        loader.style.display = 'none';
-        document.getElementById('auth-screen').style.display = 'flex';
-        switchAuthTab('login');
-      }
-    }, 6000);
-
-    // Wrap initAuth to clear timeout on success
-    (async () => {
-      try {
-        await initAuth();
-      } catch(e) {
-        console.error('initAuth error:', e);
-        clearTimeout(_loadTimeout);
-        document.getElementById('app-loading').classList.remove('visible');
-        document.getElementById('app-loading').style.display = 'none';
-        document.getElementById('auth-screen').style.display = 'flex';
-        switchAuthTab('login');
-      }
-    })();
+    // ── START ────────────────────────────────────────────────────
+    initAuth();
   </script>
 </body>
 
