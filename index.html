@@ -1781,12 +1781,14 @@
         // SUPABASE CONFIG — replace these with your actual project values
         // Get them from: https://supabase.com/dashboard → your project → Settings → API
         // ═══════════════════════════════════════════════════════════
-        const SUPABASE_URL = 'https://xfiamuvecnxogezitilw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmaWFtdXZlY254b2dleml0aWx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjI5NjgsImV4cCI6MjA5Mzk5ODk2OH0.7co8XTHMseulzKZ1OLfYaDkqvUPlswZM6d1xTgmOFeA';
+       const SUPABASE_URL = 'https://rtyjrdejyhlwrjozdsyy.supabase.co';
 
-        // ── Supabase client ──────────────────────────────────────────
-        const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0eWpyZGVqeWhsd3Jqb3pkc3l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTczOTQsImV4cCI6MjA5NDA5MzM5NH0.BQoi0ihl18crOLKy4MUcKavBYCT8VWTwGBaEQrmU0gc';
 
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
         // ── Auth state ───────────────────────────────────────────────
         let currentUser = null;
         let currentProfile = null;
