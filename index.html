@@ -1964,8 +1964,11 @@
     async function fetchIncome() {
       if (_demoMode) return _demoData.income;
       const sb = _sb;
-      const { data } = await sb.from('income').select('*').eq('user_id', uid()).order("transaction_date", { ascending: false })
-      return data || [];
+      const { data } = await sb.from('income').insert({
+  ...row,
+  user_id: uid(),
+  transaction_date: row.transaction_date || new Date().toISOString()
+});
     }
     async function addIncome(row) {
       if (_demoMode) { _demoData.income.unshift({ id: demoId(), user_id: 'demo', ...row }); return true; }
@@ -1986,8 +1989,11 @@
     async function fetchExpenses() {
       if (_demoMode) return _demoData.expenses;
       const sb = _sb;
-      const { data } = await sb.from('expenses').select('*').eq('user_id', uid()).order("transaction_date", { ascending: false })
-      return data || [];
+      const { data } = await sb.from('expenses').insert({
+  ...row,
+  user_id: uid(),
+  transaction_date: row.transaction_date || new Date().toISOString()
+});
     }
     async function addExpense(row) {
       if (_demoMode) { _demoData.expenses.unshift({ id: demoId(), user_id: 'demo', ...row }); return true; }
