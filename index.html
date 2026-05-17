@@ -3,152 +3,346 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>BTECH Track - System Upgrade</title>
+<title>BTECH Track - Major System Upgrade</title>
 
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        color: #ffffff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        text-align: center;
-    }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    .container {
-        max-width: 700px;
-        padding: 40px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-        backdrop-filter: blur(10px);
-    }
+body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow:hidden;
+    height:100vh;
+    background: linear-gradient(135deg, #041b15, #2b0b18);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    position:relative;
+}
 
-    .logo {
-        font-size: 32px;
-        font-weight: bold;
-        letter-spacing: 2px;
-        margin-bottom: 10px;
-        color: #38bdf8;
-    }
+/* Animated Particles */
+.particles{
+    position:absolute;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:0;
+}
 
-    .tagline {
-        font-size: 14px;
-        color: #94a3b8;
-        margin-bottom: 30px;
-        letter-spacing: 1px;
-    }
+.particles span{
+    position:absolute;
+    display:block;
+    width:12px;
+    height:12px;
+    background:rgba(255,255,255,0.08);
+    animation:animate 25s linear infinite;
+    bottom:-150px;
+    border-radius:50%;
+}
 
-    h1 {
-        font-size: 28px;
-        margin-bottom: 15px;
-    }
+.particles span:nth-child(1){
+    left:10%;
+    width:20px;
+    height:20px;
+    animation-duration:18s;
+}
 
-    p {
-        font-size: 16px;
-        color: #cbd5e1;
-        line-height: 1.6;
-    }
+.particles span:nth-child(2){
+    left:20%;
+    animation-duration:25s;
+}
 
-    .highlight {
-        color: #38bdf8;
-        font-weight: bold;
-    }
+.particles span:nth-child(3){
+    left:35%;
+    width:18px;
+    height:18px;
+    animation-duration:20s;
+}
 
-    .time-box {
-        margin-top: 25px;
-        padding: 15px;
-        background: rgba(56, 189, 248, 0.1);
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        border-radius: 12px;
-        display: inline-block;
-    }
+.particles span:nth-child(4){
+    left:50%;
+    animation-duration:15s;
+}
 
-    .countdown {
-        font-size: 18px;
-        font-weight: bold;
-        color: #38bdf8;
-        margin-top: 10px;
-    }
+.particles span:nth-child(5){
+    left:65%;
+    width:22px;
+    height:22px;
+    animation-duration:28s;
+}
 
-    .footer {
-        margin-top: 25px;
-        font-size: 12px;
-        color: #64748b;
-    }
+.particles span:nth-child(6){
+    left:80%;
+    animation-duration:19s;
+}
 
-    .pulse {
-        width: 12px;
-        height: 12px;
-        background: #38bdf8;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-        animation: pulse 1.2s infinite;
-    }
+.particles span:nth-child(7){
+    left:90%;
+    width:15px;
+    height:15px;
+    animation-duration:23s;
+}
 
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.4); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 1; }
+@keyframes animate{
+    0%{
+        transform:translateY(0) rotate(0deg);
+        opacity:0;
     }
+    10%{
+        opacity:1;
+    }
+    100%{
+        transform:translateY(-110vh) rotate(360deg);
+        opacity:0;
+    }
+}
 
-    .btn {
-        margin-top: 20px;
-        padding: 10px 20px;
-        border: none;
-        background: #38bdf8;
-        color: #0f172a;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-    }
+/* Main Card */
+.container{
+    position:relative;
+    z-index:1;
+    width:90%;
+    max-width:700px;
+    padding:45px;
+    text-align:center;
+    border-radius:24px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
 
-    .btn:hover {
-        background: #0ea5e9;
-    }
+.logo{
+    font-size:38px;
+    font-weight:800;
+    letter-spacing:3px;
+    color:#3ddc97;
+    margin-bottom:10px;
+}
+
+.tagline{
+    color:#d1d5db;
+    font-size:14px;
+    letter-spacing:1px;
+    margin-bottom:30px;
+}
+
+h1{
+    font-size:32px;
+    margin-bottom:18px;
+}
+
+p{
+    color:#d1d5db;
+    line-height:1.8;
+    margin-bottom:15px;
+}
+
+.highlight{
+    color:#3ddc97;
+    font-weight:bold;
+}
+
+.maintenance-box{
+    margin-top:25px;
+    padding:20px;
+    border-radius:16px;
+    background:rgba(0,0,0,0.2);
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.maintenance-title{
+    font-size:16px;
+    color:#ffffff;
+    margin-bottom:10px;
+}
+
+.time{
+    color:#3ddc97;
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:25px;
+}
+
+/* Countdown */
+.countdown{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.time-box{
+    background:rgba(255,255,255,0.06);
+    padding:15px;
+    min-width:90px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.time-box h2{
+    font-size:28px;
+    color:#ffffff;
+}
+
+.time-box span{
+    font-size:13px;
+    color:#cbd5e1;
+}
+
+.status{
+    margin-top:25px;
+    color:#94a3b8;
+    font-size:14px;
+}
+
+.button{
+    margin-top:30px;
+}
+
+.button button{
+    padding:12px 28px;
+    border:none;
+    border-radius:12px;
+    background:#3ddc97;
+    color:#041b15;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    font-size:15px;
+}
+
+.button button:hover{
+    transform:translateY(-2px);
+    background:#34c985;
+}
+
+.footer{
+    margin-top:25px;
+    color:#94a3b8;
+    font-size:12px;
+}
 </style>
 </head>
 
 <body>
 
+<!-- Particles -->
+<div class="particles">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<!-- Main Content -->
 <div class="container">
+
     <div class="logo">BTECH TRACK</div>
-    <div class="tagline">Smart Finance & Tracking System</div>
+    <div class="tagline">SYSTEM MAINTENANCE & MAJOR UPGRADES</div>
 
-    <h1>System Upgrade in Progress</h1>
+    <h1>We’ll Be Back Shortly</h1>
 
     <p>
-        We are currently performing a <span class="highlight">major system upgrade</span> 
-        to improve performance, security, and user experience.
+        Our team is currently performing a 
+        <span class="highlight">major platform upgrade</span>
+        to improve security, speed, and overall user experience.
     </p>
 
     <p>
-        During this time, access to the platform may be temporarily unavailable.
+        Thank you for your patience while we make BTECH Track even better.
     </p>
 
-    <div class="time-box">
-        <div>
-            <span class="pulse"></span>
-            Maintenance Window
+    <div class="maintenance-box">
+        <div class="maintenance-title">Scheduled Maintenance</div>
+
+        <div class="time">
+            9:00 PM — 10:00 PM
         </div>
+
         <div class="countdown">
-            9:00 PM – 10:00 PM
+
+            <div class="time-box">
+                <h2 id="hours">00</h2>
+                <span>Hours</span>
+            </div>
+
+            <div class="time-box">
+                <h2 id="minutes">00</h2>
+                <span>Minutes</span>
+            </div>
+
+            <div class="time-box">
+                <h2 id="seconds">00</h2>
+                <span>Seconds</span>
+            </div>
+
         </div>
     </div>
 
-    <button class="btn" onclick="location.reload()">Check Status</button>
+    <div class="status">
+        System status: Upgrade in progress...
+    </div>
+
+    <div class="button">
+        <button onclick="location.reload()">
+            Check Status
+        </button>
+    </div>
 
     <div class="footer">
-        © 2026 BTECH Track. All rights reserved.
+        © 2026 BTECH Track. All Rights Reserved.
     </div>
+
 </div>
+
+<script>
+
+// Set maintenance end time
+const targetHour = 22; // 10 PM
+
+function updateCountdown(){
+
+    const now = new Date();
+
+    let target = new Date();
+
+    target.setHours(targetHour, 0, 0, 0);
+
+    // If past 10 PM, set for next day
+    if(now > target){
+        target.setDate(target.getDate() + 1);
+    }
+
+    const diff = target - now;
+
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    document.getElementById("hours").innerHTML =
+        String(hours).padStart(2, '0');
+
+    document.getElementById("minutes").innerHTML =
+        String(minutes).padStart(2, '0');
+
+    document.getElementById("seconds").innerHTML =
+        String(seconds).padStart(2, '0');
+
+}
+
+setInterval(updateCountdown, 1000);
+
+updateCountdown();
+
+</script>
 
 </body>
 </html>
