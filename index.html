@@ -3645,6 +3645,289 @@
             -webkit-text-fill-color: #0F172A !important;
             background: #F8FAFF !important;
         }
+
+        /* ══════════════════════════════════════════════════════════
+           LOAN MANAGER STYLES
+        ══════════════════════════════════════════════════════════ */
+        .loan-card {
+            padding: 18px 16px;
+            border-bottom: 1px solid var(--border-solid);
+            transition: background .12s;
+        }
+        .loan-card:last-child { border-bottom: none; }
+        .loan-card:hover { background: var(--surface-2); }
+
+        .loan-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .loan-title-group { flex: 1; min-width: 0; }
+        .loan-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .loan-meta { font-size: 12px; color: var(--text-muted); }
+
+        .loan-badge {
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .loan-badge-borrowed { background: rgba(239,68,68,.12); color: #EF4444; }
+        .loan-badge-lent { background: rgba(16,185,129,.12); color: #10B981; }
+        .loan-badge-active { background: rgba(108,99,255,.12); color: #6C63FF; }
+        .loan-badge-completed { background: rgba(16,185,129,.12); color: #10B981; }
+        .loan-badge-overdue { background: rgba(239,68,68,.12); color: #EF4444; }
+
+        .loan-amounts {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        .loan-amount-item { text-align: center; min-width: 70px; }
+        .loan-amount-val {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            display: block;
+        }
+        .loan-amount-lbl { color: var(--text-muted); font-size: 11px; }
+
+        .loan-progress-wrap { margin-bottom: 10px; }
+        .loan-progress-track {
+            height: 7px;
+            background: var(--gray-200);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        .loan-progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width .6s cubic-bezier(.25,.46,.45,.94);
+        }
+        .loan-progress-fill.low { background: linear-gradient(90deg,#EF4444,#F87171); }
+        .loan-progress-fill.mid { background: linear-gradient(90deg,#F59E0B,#FBBF24); }
+        .loan-progress-fill.high { background: linear-gradient(90deg,#10B981,#34D399); }
+        .loan-progress-fill.done { background: linear-gradient(90deg,#10B981,#059669); }
+        .loan-progress-pct { font-size: 11.5px; color: var(--text-muted); }
+
+        .loan-actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            opacity: 0;
+            transition: opacity .15s;
+        }
+        .loan-card:hover .loan-actions { opacity: 1; }
+
+        .loan-btn {
+            padding: 5px 11px;
+            border: 1.5px solid var(--border-solid);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            background: var(--surface);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            transition: all .15s;
+        }
+        .loan-btn:hover { background: var(--gray-100); }
+        .loan-btn.pay { border-color: #10B981; color: #10B981; }
+        .loan-btn.pay:hover { background: var(--success-light); }
+        .loan-btn.del { border-color: var(--danger); color: var(--danger); }
+        .loan-btn.del:hover { background: var(--danger-light); }
+        .loan-btn.edit { border-color: var(--primary); color: var(--primary); }
+        .loan-btn.edit:hover { background: var(--blue-pale); }
+
+        .loan-complete-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 11.5px;
+            font-weight: 700;
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        /* Payment history inside loan card */
+        .loan-payments {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-solid);
+            display: none;
+        }
+        .loan-payments.open { display: block; }
+        .loan-payment-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-solid);
+        }
+        .loan-payment-item:last-child { border-bottom: none; }
+
+        /* ══════════════════════════════════════════════════════════
+           IMPROVED MOBILE BOTTOM NAV — Modern Fintech Style
+        ══════════════════════════════════════════════════════════ */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 400;
+            background: var(--surface);
+            border-top: 1px solid var(--border-solid);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-shadow: 0 -4px 24px rgba(0,0,0,.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .mobile-nav-inner {
+            display: flex;
+            align-items: stretch;
+            height: 62px;
+        }
+
+        .mobile-nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            padding: 0 4px;
+            position: relative;
+            transition: color .2s, transform .15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mobile-nav-btn i, .mobile-nav-btn .mn-icon {
+            font-size: 18px;
+            transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+        }
+
+        .mobile-nav-btn .mn-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .01em;
+        }
+
+        .mobile-nav-btn:active { transform: scale(.92); }
+
+        .mobile-nav-btn.active {
+            color: var(--primary);
+        }
+
+        .mobile-nav-btn.active i,
+        .mobile-nav-btn.active .mn-icon {
+            transform: translateY(-2px) scale(1.12);
+        }
+
+        .mobile-nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 3px;
+            border-radius: 3px 3px 0 0;
+            background: var(--primary);
+        }
+
+        [data-theme="dark"] .mobile-nav {
+            background: rgba(15,20,40,.92);
+            border-top-color: rgba(255,255,255,.08);
+        }
+
+        /* PWA Install Banner */
+        #pwa-install-banner {
+            display: none;
+            position: fixed;
+            bottom: 70px;
+            left: 16px;
+            right: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border-solid);
+            border-radius: 14px;
+            padding: 14px 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 600;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            animation: slideUp .3s cubic-bezier(.34,1.56,.64,1);
+        }
+        #pwa-install-banner.show { display: flex; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: none; }
+        }
+        .pwa-banner-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg,#166534,#16a34a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 22px;
+        }
+        .pwa-banner-text { flex: 1; }
+        .pwa-banner-title { font-size: 14px; font-weight: 700; color: var(--text); }
+        .pwa-banner-sub { font-size: 12px; color: var(--text-muted); }
+        .pwa-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .pwa-install-btn {
+            padding: 8px 14px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg,#166534,#16a34a);
+            color: #fff;
+            transition: filter .2s;
+        }
+        .pwa-install-btn:hover { filter: brightness(1.1); }
+        .pwa-dismiss-btn {
+            padding: 8px 10px;
+            border-radius: 9px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid var(--border-solid);
+            background: var(--gray-100);
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+
     </style>
 </head>
 
@@ -3851,6 +4134,9 @@
                 </button>
                 <button class="sidebar-btn" onclick="showPage('todo',this)" data-page="todo">
                     <i class="fa-solid fa-check-circle nav-fa sb-icon-tasks"></i><span class="sb-label">Tasks</span>
+                </button>
+                <button class="sidebar-btn" onclick="showPage('loans',this)" data-page="loans">
+                    <i class="fa-solid fa-handshake nav-fa" style="color:#F97316"></i><span class="sb-label">Loans</span>
                 </button>
 
                 <div class="sidebar-section" style="margin-top:8px">Insights</div>
@@ -4194,6 +4480,32 @@
                         id="todo-list"></div>
                 </div>
 
+
+                <!-- ══════════════════ LOANS ══════════════════ -->
+                <div id="page-loans" style="display:none" class="fade-in">
+                    <div class="section-header">
+                        <span class="section-title"><i class="fa-solid fa-handshake" style="color:#F97316;margin-right:8px"></i>Loan Manager</span>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn-action" style="background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;padding:8px 14px;font-size:13px;box-shadow:0 4px 12px rgba(249,115,22,.3)" onclick="openLoanModal()">+ Add Loan</button>
+                        </div>
+                    </div>
+                    <!-- Loan Analytics Cards -->
+                    <div class="cards-grid" id="loan-analytics-cards" style="margin-bottom:18px"></div>
+                    <!-- Loan Filter Tabs -->
+                    <div class="section-card" style="margin-bottom:0;border-radius:var(--r-md) var(--r-md) 0 0">
+                        <div style="display:flex;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border-solid);flex-wrap:wrap;background:var(--surface-2)">
+                            <button class="todo-filter-btn active" onclick="setLoanFilter('all',this)">All</button>
+                            <button class="todo-filter-btn" onclick="setLoanFilter('borrowed',this)">Borrowed</button>
+                            <button class="todo-filter-btn" onclick="setLoanFilter('lent',this)">Lent</button>
+                            <button class="todo-filter-btn" onclick="setLoanFilter('active',this)">Active</button>
+                            <button class="todo-filter-btn" onclick="setLoanFilter('overdue',this)">Overdue</button>
+                            <button class="todo-filter-btn" onclick="setLoanFilter('completed',this)">Completed</button>
+                        </div>
+                    </div>
+                    <div class="section-card" style="border-radius:0 0 var(--r-md) var(--r-md);border-top:none" id="loans-list"></div>
+                </div>
+
+
                 <!-- ══════════════════ ADMIN ══════════════════ -->
                 <div id="page-admin" style="display:none" class="fade-in">
                     <div class="greeting">
@@ -4257,23 +4569,20 @@
         <!-- MOBILE BOTTOM NAV -->
         <nav class="mobile-nav">
             <div class="mobile-nav-inner">
-                <button class="mobile-nav-btn active" onclick="showPage('dashboard',this);updateMobileNav(this)"
-                    data-page="dashboard">
+                <button class="mobile-nav-btn active" onclick="showPage('dashboard',this);updateMobileNav(this)" data-page="dashboard">
                     <i class="fa-solid fa-gauge-high"></i><span class="mn-label">Home</span>
                 </button>
-                <button class="mobile-nav-btn" onclick="showPage('transactions',this);updateMobileNav(this)"
-                    data-page="transactions">
-                    <span class="mn-icon">↔️</span><span class="mn-label">Txns</span>
+                <button class="mobile-nav-btn" onclick="showPage('transactions',this);updateMobileNav(this)" data-page="transactions">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i><span class="mn-label">Txns</span>
+                </button>
+                <button class="mobile-nav-btn" onclick="showPage('loans',this);updateMobileNav(this)" data-page="loans">
+                    <i class="fa-solid fa-handshake"></i><span class="mn-label">Loans</span>
                 </button>
                 <button class="mobile-nav-btn" onclick="showPage('goals',this);updateMobileNav(this)" data-page="goals">
                     <i class="fa-solid fa-bullseye"></i><span class="mn-label">Goals</span>
                 </button>
                 <button class="mobile-nav-btn" onclick="showPage('todo',this);updateMobileNav(this)" data-page="todo">
                     <i class="fa-solid fa-check-circle"></i><span class="mn-label">Tasks</span>
-                </button>
-                <button class="mobile-nav-btn" onclick="showPage('reports',this);updateMobileNav(this)"
-                    data-page="reports">
-                    <i class="fa-solid fa-chart-line"></i><span class="mn-label">Reports</span>
                 </button>
             </div>
         </nav>
@@ -4390,12 +4699,14 @@
             <div class="modal-header"><span class="modal-title"><i class="fa-solid fa-basket-shopping icon-shop"
                         style="margin-right:8px"></i>Add Shopping Item</span><button class="modal-close"
                     onclick="closeModal()">×</button></div>
-            <div class="form-group"><label>Item Name</label><input type="text" id="s-name" placeholder="e.g. Milk">
-            </div>
-            <div class="form-group"><label>Quantity (optional)</label><input type="text" id="s-qty"
-                    placeholder="e.g. 2 litres"></div>
-            <div class="form-group"><label>Estimated Cost (KES)</label><input type="number" id="s-cost" placeholder="0"
-                    min="0"></div>
+            <div class="form-group"><label>Item Name</label><input type="text" id="s-name" placeholder="e.g. Milk"></div>
+            <div class="form-group"><label>Category</label><select id="s-category">
+                <option>Groceries</option><option>Electronics</option><option>Clothing</option>
+                <option>Health</option><option>Home</option><option>School</option><option>Other</option>
+            </select></div>
+            <div class="form-group"><label>Quantity (optional)</label><input type="text" id="s-qty" placeholder="e.g. 2 litres"></div>
+            <div class="form-group"><label>Estimated Price (KES)</label><input type="number" id="s-cost" placeholder="0" min="0"></div>
+            <div class="form-group"><label>Description (optional)</label><input type="text" id="s-desc" placeholder="Any notes…"></div>
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeModal()">Cancel</button>
                 <button class="btn-submit gray" id="btn-add-shop" onclick="addShopUI()">Add Item</button>
@@ -4465,6 +4776,57 @@
             </div>
         </div>
 
+        <!-- Loan Modal -->
+        <div class="modal" id="m-loan" style="display:none;max-width:540px">
+            <div class="modal-header">
+                <span class="modal-title"><i class="fa-solid fa-handshake icon-loan" style="margin-right:8px;color:#F97316"></i><span id="loan-modal-title-text">Add Loan</span></span>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <input type="hidden" id="loan-edit-id">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group" style="grid-column:1/-1"><label>Loan Title</label><input type="text" id="loan-title" placeholder="e.g. School Fees Loan"></div>
+                <div class="form-group"><label>Type</label><select id="loan-type">
+                    <option value="borrowed">Borrowed (I owe)</option>
+                    <option value="lent">Lent (Owed to me)</option>
+                </select></div>
+                <div class="form-group"><label>Category</label><select id="loan-category">
+                    <option>Personal</option><option>Business</option><option>Education</option>
+                    <option>Emergency</option><option>Investment</option><option>Other</option>
+                </select></div>
+                <div class="form-group"><label>Person / Company</label><input type="text" id="loan-person" placeholder="Name of lender or borrower"></div>
+                <div class="form-group"><label>Principal Amount (KES)</label><input type="number" id="loan-amount" placeholder="0" min="0"></div>
+                <div class="form-group"><label>Amount Paid (KES)</label><input type="number" id="loan-paid" placeholder="0" min="0" oninput="updateLoanBalance()"></div>
+                <div class="form-group"><label>Interest Rate (% optional)</label><input type="number" id="loan-interest" placeholder="e.g. 5" min="0" step="0.1"></div>
+                <div class="form-group"><label>Due Date</label><input type="date" id="loan-due"></div>
+                <div class="form-group" style="grid-column:1/-1"><label>Notes (optional)</label><input type="text" id="loan-notes" placeholder="Add any notes…"></div>
+            </div>
+            <div id="loan-balance-preview" style="margin:8px 0;padding:10px 14px;background:var(--surface-2);border-radius:10px;font-size:13px;display:none">
+                <span style="color:var(--text-muted)">Remaining Balance: </span>
+                <strong id="loan-balance-val" style="color:var(--danger);font-family:'DM Mono',monospace"></strong>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-submit" style="background:linear-gradient(135deg,#F97316,#EA580C);box-shadow:0 4px 12px rgba(249,115,22,.3)" id="btn-save-loan" onclick="saveLoanUI()">Save Loan</button>
+            </div>
+        </div>
+
+        <!-- Loan Payment Modal -->
+        <div class="modal" id="m-loan-payment" style="display:none">
+            <div class="modal-header">
+                <span class="modal-title"><i class="fa-solid fa-coins" style="margin-right:8px;color:#F97316"></i>Record Payment</span>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <input type="hidden" id="payment-loan-id">
+            <div class="form-group"><label>Payment Amount (KES)</label><input type="number" id="payment-amount" placeholder="0" min="0"></div>
+            <div class="form-group"><label>Payment Date</label><input type="date" id="payment-date"></div>
+            <div class="form-group"><label>Notes (optional)</label><input type="text" id="payment-notes" placeholder="e.g. Partial payment"></div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-submit" style="background:linear-gradient(135deg,#F97316,#EA580C)" id="btn-save-payment" onclick="savePaymentUI()">Record Payment</button>
+            </div>
+        </div>
+
+
         <!-- Profile Picture Modal -->
         <div class="modal" id="m-profile-pic" style="display:none">
             <div class="modal-header">
@@ -4504,6 +4866,19 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner">
+        <div class="pwa-banner-icon">📊</div>
+        <div class="pwa-banner-text">
+            <div class="pwa-banner-title">Install BTECH Track</div>
+            <div class="pwa-banner-sub">Add to home screen for quick access</div>
+        </div>
+        <div class="pwa-banner-actions">
+            <button class="pwa-install-btn" onclick="installPWA()">Install</button>
+            <button class="pwa-dismiss-btn" onclick="dismissPWA()">✕</button>
+        </div>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -4550,7 +4925,7 @@
         let _demoMode = false;
         let _demoData = {
             income: [], expenses: [], goals: [], budgets: [], shopping: [], savings: [],
-            todos: [], nextId: 1
+            todos: [], loans: [], loanPayments: [], nextId: 1
         };
 
         function isAdmin() { return _demoMode || currentProfile?.role === 'admin'; }
@@ -5265,7 +5640,7 @@
         const pageTitles = {
             dashboard: 'Dashboard', transactions: 'Transactions', goals: 'Goals', budget: 'Budget',
             shopping: 'Shopping', savings: 'Savings', reports: 'Reports', advice: 'Financial Advice',
-            admin: 'Admin Panel', todo: 'Task Manager'
+            admin: 'Admin Panel', todo: 'Task Manager', loans: 'Loan Manager'
         };
 
         function _showPage(name) {
@@ -5306,6 +5681,7 @@
                 case 'savings': renderSavings(); break;
                 case 'todo': renderTodo(); break;
                 case 'admin': if (isAdmin()) renderAdmin(); else showToast('Admin only.', 'danger'); break;
+                case 'loans': renderLoans(); break;
             }
         }
 
@@ -5741,22 +6117,40 @@
         // ── SHOPPING ─────────────────────────────────────────────────
         function renderShop() {
             if (!_shopping.length) {
-                el('shop-list').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🛒</div>Shopping list is empty.</div>';
+                el('shop-list').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🛒</div>Shopping list is empty. Add items to get started!</div>';
                 el('shop-total').innerHTML = '';
                 return;
             }
-            el('shop-list').innerHTML = _shopping.map(s => `<div class="shop-item">
-      <input type="checkbox" class="shop-check" ${s.done ? 'checked' : ''} onchange="toggleShopUI('${s.id}',this.checked)">
-      <span style="flex:1;font-size:13.5px;${s.done ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(s.name)}</span>
-      <span style="font-size:12px;color:var(--text-muted)">${esc(s.qty || '')}</span>
-      <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;margin-left:10px">KES ${fmtN(s.cost)}</span>
+            const total = _shopping.reduce((s, i) => s + (+i.cost||0), 0);
+            const doneItems = _shopping.filter(i => i.done);
+            const doneTotal = doneItems.reduce((s, i) => s + (+i.cost||0), 0);
+            const pct = total > 0 ? Math.round((doneTotal/total)*100) : 0;
+            el('shop-list').innerHTML = _shopping.map(s => `<div class="shop-item" style="padding:12px 16px;${s.done?'opacity:.65':''}">
+      <input type="checkbox" class="shop-check" ${s.done ? 'checked' : ''} onchange="toggleShopUI('${s.id}',this.checked)" style="flex-shrink:0">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span style="font-size:13.5px;font-weight:600;${s.done?'text-decoration:line-through;color:var(--text-muted)':''}">${esc(s.name)}</span>
+          ${s.category ? `<span style="padding:2px 7px;background:var(--surface-2);border:1px solid var(--border-solid);border-radius:99px;font-size:10.5px;color:var(--text-muted)">${esc(s.category)}</span>` : ''}
+          ${s.done ? '<span style="padding:2px 7px;background:rgba(16,185,129,.1);color:#10B981;border-radius:99px;font-size:10.5px;font-weight:700">✓ Purchased</span>' : ''}
+        </div>
+        ${(s.qty||s.description) ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">${s.qty ? esc(s.qty) : ''}${s.qty && s.description ? ' · ' : ''}${s.description ? esc(s.description) : ''}</div>` : ''}
+      </div>
+      <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:700;flex-shrink:0;color:${s.done?'var(--success)':'var(--text)'}">KES ${fmtN(s.cost)}</span>
       <button onclick="delShopUI('${s.id}')" class="tx-del" style="opacity:1;margin-left:6px">✕</button>
     </div>`).join('');
-            const total = _shopping.reduce((s, i) => s + +i.cost, 0);
-            const done = _shopping.filter(i => i.done).reduce((s, i) => s + +i.cost, 0);
-            el('shop-total').innerHTML = `<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted)">
-      <span>Purchased: <strong style="color:var(--success)">KES ${fmtN(done)}</strong></span>
-      <span>Total: <strong style="color:var(--text);font-family:'DM Mono',monospace">KES ${fmtN(total)}</strong></span>
+            el('shop-total').innerHTML = `
+    <div style="padding:12px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px">
+        <span style="color:var(--text-muted)">${doneItems.length} of ${_shopping.length} items purchased</span>
+        <span style="font-weight:700;color:var(--primary)">${pct}%</span>
+      </div>
+      <div style="background:var(--surface-2);border-radius:99px;height:7px;overflow:hidden;margin-bottom:10px">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:99px;transition:width .6s ease"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span>Purchased: <strong style="color:var(--success);font-family:'DM Mono',monospace">KES ${fmtN(doneTotal)}</strong></span>
+        <span>Total: <strong style="color:var(--text);font-family:'DM Mono',monospace">KES ${fmtN(total)}</strong></span>
+      </div>
     </div>`;
         }
 
@@ -5764,11 +6158,13 @@
             const name = el('s-name').value.trim();
             const qty = el('s-qty').value.trim();
             const cost = parseFloat(el('s-cost').value) || 0;
+            const category = el('s-category') ? el('s-category').value : 'Other';
+            const desc = el('s-desc') ? el('s-desc').value.trim() : '';
             if (!name) return showToast('Please enter an item name.', 'danger');
             setBtn('btn-add-shop', true, 'Saving…');
-            const ok = await addShoppingItem({ name, qty, cost });
+            const ok = await addShoppingItem({ name, qty, cost, category, description: desc });
             setBtn('btn-add-shop', false, 'Add Item');
-            if (ok) { closeModal();['s-name', 's-qty', 's-cost'].forEach(f => { const el2 = el(f); if (el2) el2.value = ''; }); await refreshAllData(); renderShop(); showToast('Item added!', 'success'); }
+            if (ok) { closeModal();['s-name','s-qty','s-cost','s-desc'].forEach(f => { const el2 = el(f); if (el2) el2.value = ''; }); await refreshAllData(); renderShop(); showToast('Item added!', 'success'); }
         }
 
         async function toggleShopUI(id, done) {
@@ -6119,7 +6515,8 @@
             const map = {
                 income: 'm-income', expense: 'm-expense', goal: 'm-goal',
                 budget: 'm-budget', shop: 'm-shop', savings: 'm-savings',
-                'profile-pic': 'm-profile-pic', todo: 'm-todo'
+                'profile-pic': 'm-profile-pic', todo: 'm-todo',
+                loan: 'm-loan', 'loan-payment': 'm-loan-payment'
             };
             if (type === 'income') { const d = el('i-date'); if (d) d.value = today; }
             if (type === 'expense') { const d = el('e-date'); if (d) d.value = today; }
@@ -6539,6 +6936,405 @@
         window.addEventListener('unhandledrejection', (e) => {
             console.warn('Unhandled promise rejection:', e.reason);
         });
+
+
+        // ═══════════════════════════════════════════════════════════
+        // LOANS SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        const STORAGE_BUCKET_LOANS = 'loan-payments';
+        let _loans = [], _loanPayments = [], _loanFilter = 'all';
+        let _loanEditId = null;
+
+        // Supabase loan helpers
+        async function fetchLoans() {
+            if (_demoMode) return _demoData.loans || [];
+            try {
+                const { data } = await _sb.from('loans').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+                return data || [];
+            } catch(e) { return []; }
+        }
+        async function fetchLoanPayments(loanId) {
+            if (_demoMode) return (_demoData.loanPayments || []).filter(p => p.loan_id === loanId);
+            try {
+                const { data } = await _sb.from('loan_payments').select('*').eq('loan_id', loanId).order('payment_date', { ascending: false });
+                return data || [];
+            } catch(e) { return []; }
+        }
+        async function saveLoan(loan) {
+            if (_demoMode) {
+                if (loan.id) {
+                    _demoData.loans = (_demoData.loans||[]).map(l => l.id===loan.id ? {...l,...loan} : l);
+                } else {
+                    loan.id = String(_demoData.nextId++);
+                    loan.user_id = 'demo';
+                    loan.created_at = new Date().toISOString();
+                    _demoData.loans = [...(_demoData.loans||[]), loan];
+                }
+                return true;
+            }
+            try {
+                if (loan.id) {
+                    const { error } = await _sb.from('loans').update(loan).eq('id', loan.id).eq('user_id', currentUser.id);
+                    return !error;
+                } else {
+                    loan.user_id = currentUser.id;
+                    const { error } = await _sb.from('loans').insert(loan);
+                    return !error;
+                }
+            } catch(e) { return false; }
+        }
+        async function deleteLoan(id) {
+            if (_demoMode) { _demoData.loans = (_demoData.loans||[]).filter(l => l.id!==id); return true; }
+            try { const { error } = await _sb.from('loans').delete().eq('id',id).eq('user_id',currentUser.id); return !error; } catch(e) { return false; }
+        }
+        async function savePayment(payment) {
+            if (_demoMode) {
+                payment.id = String(_demoData.nextId++);
+                payment.created_at = new Date().toISOString();
+                _demoData.loanPayments = [...(_demoData.loanPayments||[]), payment];
+                // Update loan paid amount
+                const loan = (_demoData.loans||[]).find(l => l.id===payment.loan_id);
+                if (loan) { loan.amount_paid = (parseFloat(loan.amount_paid)||0) + parseFloat(payment.amount); }
+                return true;
+            }
+            try {
+                payment.user_id = currentUser.id;
+                const { error } = await _sb.from('loan_payments').insert(payment);
+                if (!error) {
+                    // Update loan amount_paid
+                    const loan = _loans.find(l => l.id===payment.loan_id);
+                    if (loan) {
+                        const newPaid = (parseFloat(loan.amount_paid)||0) + parseFloat(payment.amount);
+                        await _sb.from('loans').update({ amount_paid: newPaid }).eq('id', payment.loan_id);
+                    }
+                }
+                return !error;
+            } catch(e) { return false; }
+        }
+
+        function getLoanStatus(loan) {
+            const principal = parseFloat(loan.amount)||0;
+            const paid = parseFloat(loan.amount_paid)||0;
+            if (paid >= principal) return 'completed';
+            if (loan.due_date && new Date(loan.due_date) < new Date()) return 'overdue';
+            return 'active';
+        }
+
+        function setLoanFilter(f, btn) {
+            _loanFilter = f;
+            document.querySelectorAll('#page-loans .todo-filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderLoans();
+        }
+
+        async function renderLoans() {
+            _loans = await fetchLoans();
+            // Analytics
+            const borrowed = _loans.filter(l => l.type==='borrowed');
+            const lent = _loans.filter(l => l.type==='lent');
+            const totalBorrowed = borrowed.reduce((s,l) => s+parseFloat(l.amount||0),0);
+            const totalLent = lent.reduce((s,l) => s+parseFloat(l.amount||0),0);
+            const totalDebt = borrowed.reduce((s,l) => s+Math.max(0,parseFloat(l.amount||0)-parseFloat(l.amount_paid||0)),0);
+            const totalRecovered = lent.reduce((s,l) => s+parseFloat(l.amount_paid||0),0);
+            const activeCount = _loans.filter(l => getLoanStatus(l)==='active').length;
+
+            el('loan-analytics-cards').innerHTML = `
+            <div class="stat-card stat-expense">
+                <div class="stat-card-stripe"></div>
+                <div class="stat-card-icon-wrap"><i class="fa-solid fa-arrow-trend-down" style="color:#EF4444;font-size:20px"></i></div>
+                <div class="stat-card-label">Total Borrowed</div>
+                <div class="stat-card-value" style="color:#EF4444!important">${fmt(totalBorrowed)}</div>
+                <div class="stat-card-sub">${borrowed.length} loans</div>
+            </div>
+            <div class="stat-card stat-income">
+                <div class="stat-card-stripe"></div>
+                <div class="stat-card-icon-wrap"><i class="fa-solid fa-arrow-trend-up" style="color:#10B981;font-size:20px"></i></div>
+                <div class="stat-card-label">Total Lent</div>
+                <div class="stat-card-value" style="color:#10B981!important">${fmt(totalLent)}</div>
+                <div class="stat-card-sub">${lent.length} loans</div>
+            </div>
+            <div class="stat-card stat-balance">
+                <div class="stat-card-stripe"></div>
+                <div class="stat-card-icon-wrap"><i class="fa-solid fa-exclamation-circle" style="color:#EF4444;font-size:20px"></i></div>
+                <div class="stat-card-label">Remaining Debt</div>
+                <div class="stat-card-value" style="color:#EF4444!important">${fmt(totalDebt)}</div>
+                <div class="stat-card-sub">${activeCount} active</div>
+            </div>
+            <div class="stat-card stat-savings">
+                <div class="stat-card-stripe"></div>
+                <div class="stat-card-icon-wrap"><i class="fa-solid fa-coins" style="color:#8B5CF6;font-size:20px"></i></div>
+                <div class="stat-card-label">Recovered</div>
+                <div class="stat-card-value" style="color:#8B5CF6!important">${fmt(totalRecovered)}</div>
+                <div class="stat-card-sub">from lent loans</div>
+            </div>`;
+
+            // Filter
+            let filtered = [..._loans];
+            if (_loanFilter === 'borrowed') filtered = filtered.filter(l => l.type==='borrowed');
+            else if (_loanFilter === 'lent') filtered = filtered.filter(l => l.type==='lent');
+            else if (_loanFilter === 'active') filtered = filtered.filter(l => getLoanStatus(l)==='active');
+            else if (_loanFilter === 'overdue') filtered = filtered.filter(l => getLoanStatus(l)==='overdue');
+            else if (_loanFilter === 'completed') filtered = filtered.filter(l => getLoanStatus(l)==='completed');
+
+            const listEl = el('loans-list');
+            if (!filtered.length) {
+                listEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🤝</div>No loans found. Add your first loan!</div>';
+                return;
+            }
+            listEl.innerHTML = filtered.map(loan => {
+                const principal = parseFloat(loan.amount)||0;
+                const paid = parseFloat(loan.amount_paid)||0;
+                const remaining = Math.max(0, principal - paid);
+                const pct = principal > 0 ? Math.min(100, Math.round((paid/principal)*100)) : 0;
+                const status = getLoanStatus(loan);
+                const fillClass = pct===100 ? 'done' : pct>=60 ? 'high' : pct>=30 ? 'mid' : 'low';
+                const isBorrowed = loan.type === 'borrowed';
+
+                return `<div class="loan-card" id="loan-card-${loan.id}">
+                    <div class="loan-header">
+                        <div class="loan-title-group">
+                            <div class="loan-title">${esc(loan.title||'Unnamed Loan')}</div>
+                            <div class="loan-meta">
+                                <i class="fa-solid fa-user" style="margin-right:4px;opacity:.6"></i>${esc(loan.person||'Unknown')}
+                                ${loan.category ? `· ${esc(loan.category)}` : ''}
+                                ${loan.due_date ? `· Due ${fmtDate(loan.due_date)}` : ''}
+                                ${loan.interest_rate ? `· ${loan.interest_rate}% interest` : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                            <span class="loan-badge loan-badge-${isBorrowed?'borrowed':'lent'}">${isBorrowed?'Borrowed':'Lent'}</span>
+                            <span class="loan-badge loan-badge-${status}">${status.charAt(0).toUpperCase()+status.slice(1)}</span>
+                        </div>
+                    </div>
+                    <div class="loan-amounts">
+                        <div class="loan-amount-item">
+                            <span class="loan-amount-val" style="color:var(--text)">${fmt(principal)}</span>
+                            <span class="loan-amount-lbl">Principal</span>
+                        </div>
+                        <div class="loan-amount-item">
+                            <span class="loan-amount-val" style="color:var(--success)">${fmt(paid)}</span>
+                            <span class="loan-amount-lbl">Paid</span>
+                        </div>
+                        <div class="loan-amount-item">
+                            <span class="loan-amount-val" style="color:${remaining>0?'var(--danger)':'var(--success)'}">${fmt(remaining)}</span>
+                            <span class="loan-amount-lbl">Remaining</span>
+                        </div>
+                    </div>
+                    <div class="loan-progress-wrap">
+                        <div class="loan-progress-track">
+                            <div class="loan-progress-fill ${fillClass}" style="width:${pct}%" id="loan-bar-${loan.id}"></div>
+                        </div>
+                        <div class="loan-progress-pct">
+                            ${pct===100
+                                ? '<span class="loan-complete-badge"><i class="fa-solid fa-circle-check"></i> 100% Complete</span>'
+                                : `<span style="font-weight:600;color:var(--primary)">${pct}%</span> repaid`
+                            }
+                        </div>
+                    </div>
+                    ${loan.notes ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-style:italic">📝 ${esc(loan.notes)}</div>` : ''}
+                    <div class="loan-actions">
+                        ${status!=='completed' ? `<button class="loan-btn pay" onclick="openPaymentModal('${loan.id}')"><i class="fa-solid fa-coins" style="margin-right:4px"></i>Record Payment</button>` : ''}
+                        <button class="loan-btn edit" onclick="editLoanUI('${loan.id}')"><i class="fa-solid fa-pen" style="margin-right:4px"></i>Edit</button>
+                        <button class="loan-btn" onclick="toggleLoanPayments('${loan.id}')"><i class="fa-solid fa-history" style="margin-right:4px"></i>History</button>
+                        <button class="loan-btn del" onclick="deleteLoanUI('${loan.id}')"><i class="fa-solid fa-trash" style="margin-right:4px"></i>Delete</button>
+                    </div>
+                    <div class="loan-payments" id="loan-payments-${loan.id}">
+                        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Payment History</div>
+                        <div id="loan-payments-list-${loan.id}" style="color:var(--text-muted);font-size:12.5px">Loading…</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openLoanModal(editData) {
+            _loanEditId = null;
+            const today = new Date().toISOString().split('T')[0];
+            el('loan-title').value = '';
+            el('loan-type').value = 'borrowed';
+            el('loan-category').value = 'Personal';
+            el('loan-person').value = '';
+            el('loan-amount').value = '';
+            el('loan-paid').value = '0';
+            el('loan-interest').value = '';
+            el('loan-due').value = '';
+            el('loan-notes').value = '';
+            el('loan-modal-title-text').textContent = 'Add Loan';
+            el('loan-balance-preview').style.display = 'none';
+            if (editData) {
+                _loanEditId = editData.id;
+                el('loan-title').value = editData.title||'';
+                el('loan-type').value = editData.type||'borrowed';
+                el('loan-category').value = editData.category||'Personal';
+                el('loan-person').value = editData.person||'';
+                el('loan-amount').value = editData.amount||'';
+                el('loan-paid').value = editData.amount_paid||'0';
+                el('loan-interest').value = editData.interest_rate||'';
+                el('loan-due').value = editData.due_date||'';
+                el('loan-notes').value = editData.notes||'';
+                el('loan-modal-title-text').textContent = 'Edit Loan';
+                updateLoanBalance();
+            }
+            el('m-loan').style.display = '';
+            el('modal-overlay').classList.add('open');
+        }
+
+        function updateLoanBalance() {
+            const amt = parseFloat(el('loan-amount').value)||0;
+            const paid = parseFloat(el('loan-paid').value)||0;
+            const rem = Math.max(0, amt - paid);
+            const preview = el('loan-balance-preview');
+            if (amt > 0) {
+                preview.style.display = 'block';
+                el('loan-balance-val').textContent = fmt(rem) + ' (' + (amt>0?Math.round((paid/amt)*100):0) + '% paid)';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        async function saveLoanUI() {
+            const title = el('loan-title').value.trim();
+            const amount = parseFloat(el('loan-amount').value);
+            if (!title) return showToast('Please enter a loan title.', 'danger');
+            if (!amount || amount<=0) return showToast('Please enter a valid principal amount.', 'danger');
+            setBtn('btn-save-loan', true, 'Saving…');
+            const loan = {
+                id: _loanEditId||undefined,
+                title,
+                type: el('loan-type').value,
+                category: el('loan-category').value,
+                person: el('loan-person').value.trim(),
+                amount,
+                amount_paid: parseFloat(el('loan-paid').value)||0,
+                interest_rate: parseFloat(el('loan-interest').value)||null,
+                due_date: el('loan-due').value||null,
+                notes: el('loan-notes').value.trim()||null
+            };
+            if (!loan.id) delete loan.id;
+            const ok = await saveLoan(loan);
+            setBtn('btn-save-loan', false, 'Save Loan');
+            if (ok) {
+                closeModal();
+                await renderLoans();
+                showToast((_loanEditId?'Loan updated!':'Loan added!'), 'success');
+            } else {
+                showToast('Failed to save loan. Please try again.', 'danger');
+            }
+        }
+
+        async function editLoanUI(id) {
+            const loan = _loans.find(l => l.id===id);
+            if (loan) openLoanModal(loan);
+        }
+
+        async function deleteLoanUI(id) {
+            if (!confirm('Delete this loan?')) return;
+            const ok = await deleteLoan(id);
+            if (ok) { await renderLoans(); showToast('Loan deleted.', 'success'); }
+        }
+
+        function openPaymentModal(loanId) {
+            el('payment-loan-id').value = loanId;
+            el('payment-amount').value = '';
+            el('payment-date').value = new Date().toISOString().split('T')[0];
+            el('payment-notes').value = '';
+            el('m-loan-payment').style.display = '';
+            el('modal-overlay').classList.add('open');
+        }
+
+        async function savePaymentUI() {
+            const loanId = el('payment-loan-id').value;
+            const amount = parseFloat(el('payment-amount').value);
+            if (!amount||amount<=0) return showToast('Enter a valid payment amount.', 'danger');
+            setBtn('btn-save-payment', true, 'Saving…');
+            const ok = await savePayment({
+                loan_id: loanId,
+                amount,
+                payment_date: el('payment-date').value||new Date().toISOString().split('T')[0],
+                notes: el('payment-notes').value.trim()||null
+            });
+            setBtn('btn-save-payment', false, 'Record Payment');
+            if (ok) { closeModal(); await renderLoans(); showToast('Payment recorded!', 'success'); }
+            else showToast('Failed to save payment.', 'danger');
+        }
+
+        async function toggleLoanPayments(loanId) {
+            const container = el(`loan-payments-${loanId}`);
+            if (!container) return;
+            const isOpen = container.classList.contains('open');
+            container.classList.toggle('open', !isOpen);
+            if (!isOpen) {
+                const listEl = el(`loan-payments-list-${loanId}`);
+                const payments = await fetchLoanPayments(loanId);
+                if (!payments.length) {
+                    listEl.innerHTML = '<span style="color:var(--text-muted);font-style:italic">No payments recorded yet.</span>';
+                } else {
+                    listEl.innerHTML = payments.map(p => `<div class="loan-payment-item">
+                        <span><i class="fa-solid fa-coins" style="color:#F97316;margin-right:5px"></i>${p.notes||'Payment'}</span>
+                        <span style="display:flex;gap:12px">
+                            <span style="color:var(--text-muted)">${fmtDate(p.payment_date)}</span>
+                            <strong style="color:var(--success);font-family:'DM Mono',monospace">+${fmt(p.amount)}</strong>
+                        </span>
+                    </div>`).join('');
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // PWA SUPPORT
+        // ═══════════════════════════════════════════════════════════
+        let _deferredInstallPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            _deferredInstallPrompt = e;
+            if (!localStorage.getItem('pwa_dismissed')) {
+                setTimeout(() => {
+                    const banner = el('pwa-install-banner');
+                    if (banner) banner.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (!_deferredInstallPrompt) return;
+            _deferredInstallPrompt.prompt();
+            _deferredInstallPrompt.userChoice.then(result => {
+                _deferredInstallPrompt = null;
+                dismissPWA();
+                if (result.outcome === 'accepted') showToast('BTECH Track installed!', 'success');
+            });
+        }
+
+        function dismissPWA() {
+            localStorage.setItem('pwa_dismissed', '1');
+            const banner = el('pwa-install-banner');
+            if (banner) banner.classList.remove('show');
+        }
+
+        // Register service worker for offline support
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+const CACHE_NAME = 'btechtrack-v1';
+const CACHED_URLS = ['/'];
+self.addEventListener('install', e => {
+    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(CACHED_URLS).catch(()=>{})));
+    self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+    e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))));
+    self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+    if (e.request.method !== 'GET') return;
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+});`;
+            try {
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            } catch(e) {}
+        }
+
 
         // ═══════════════════════════════════════════════════════════
         // INIT
